@@ -12,29 +12,68 @@ type Job = {
 };
 
 export default function Home() {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+ const [jobs, setJobs] = useState<Job[]>([]);
+const [loading, setLoading] = useState(true);
+const [loadingMore, setLoadingMore] = useState(false);
+const [search, setSearch] = useState("");
+const [offset, setOffset] = useState(0);
+const [hasMore, setHasMore] = useState(true);
+const LIMIT = 20;
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs`)
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs?limit=${LIMIT}&offset=0`)
+    .then((res) => res.json())
+    .then((data) => {
+      setJobs(data);
+      setHasMore(data.length === LIMIT);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error("Error fetching jobs:", err);
+      setLoading(false);
+    });
+}, []);
+
+useEffect(() => {
+  if (search.trim() === "") {
+    return;
+  }
+
+  const timer = setTimeout(() => {
+    setLoading(true);
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/search?keyword=${encodeURIComponent(search)}&limit=20`)
       .then((res) => res.json())
       .then((data) => {
         setJobs(data);
+        setHasMore(false);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching jobs:", err);
+        console.error("Error searching jobs:", err);
         setLoading(false);
       });
-  }, []);
+  }, 400);
 
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.company.toLowerCase().includes(search.toLowerCase())
-  );
+  return () => clearTimeout(timer);
+}, [search]);
 
+ 
+const loadMore = () => {
+  const newOffset = offset + LIMIT;
+  setLoadingMore(true);
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs?limit=${LIMIT}&offset=${newOffset}`)
+    .then((res) => res.json())
+    .then((data) => {
+      setJobs((prev) => [...prev, ...data]);
+      setOffset(newOffset);
+      setHasMore(data.length === LIMIT);
+      setLoadingMore(false);
+    })
+    .catch((err) => {
+      console.error("Error loading more jobs:", err);
+      setLoadingMore(false);
+    });
+};
   const initials = (name: string) =>
     name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -128,7 +167,21 @@ export default function Home() {
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+               onChange={(e) => {
+               const value = e.target.value;
+                 setSearch(value);
+                 if (value.trim() === "") {
+                  setLoading(true);
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/jobs?limit=20&offset=0`)
+        .then((res) => res.json())
+        .then((data) => {
+          setJobs(data);
+          setOffset(0);
+          setHasMore(data.length === 20);
+          setLoading(false);
+      });
+  }
+}}
                 placeholder="Search job title or company..."
                 className="w-full pl-14 pr-4 py-4.5 rounded-2xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 shadow-lg shadow-slate-200/50 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-base"
               />
@@ -164,7 +217,7 @@ export default function Home() {
             {search ? `Results for "${search}"` : "All open positions"}
           </h2>
           <span className="text-sm font-medium text-slate-400">
-            {filteredJobs.length} found
+            {jobs.length} found
           </span>
         </div>
 
@@ -185,14 +238,14 @@ export default function Home() {
           </div>
         )}
 
-        {!loading && filteredJobs.length === 0 && (
+        {!loading && jobs.length === 0 && (
           <div className="text-center text-slate-400 py-24 font-medium">
             No jobs match your search.
           </div>
         )}
 
         <div className="grid gap-3">
-          {filteredJobs.map((job, i) => (
+          {jobs.map((job, i) => (
             <div
               key={job.id}
               onClick={() => handleJobClick(job.url)}
@@ -245,6 +298,17 @@ export default function Home() {
             </div>
           ))}
         </div>
+        {!loading && !search && hasMore && (
+  <div className="text-center mt-8">
+    <button
+      onClick={loadMore}
+      disabled={loadingMore}
+      className="bg-slate-900 hover:bg-indigo-600 text-white font-bold px-8 py-3 rounded-xl transition-colors disabled:opacity-50"
+    >
+      {loadingMore ? "Loading..." : "Load More Jobs"}
+    </button>
+  </div>
+)}
       </div>
 
       {/* Footer */}
