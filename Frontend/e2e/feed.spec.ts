@@ -10,6 +10,12 @@ test("feed search, job details and mobile layout", async ({ page }) => {
     return route.continue();
   });
   await page.goto("/");
+  const initialTheme = await page.locator("html").getAttribute("data-theme");
+  await page.getByRole("button", { name: /Switch to (light|dark) mode/ }).click();
+  const selectedTheme = initialTheme === "dark" ? "light" : "dark";
+  await expect(page.locator("html")).toHaveAttribute("data-theme", selectedTheme);
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", selectedTheme);
   await expect(page.getByRole("link", { name: "Python engineer" })).toBeVisible();
   const searchRequest = page.waitForRequest(request => request.url().includes("keyword=Python"));
   await page.getByRole("textbox", { name: "Search jobs" }).fill("Python");

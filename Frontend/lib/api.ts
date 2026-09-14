@@ -7,13 +7,23 @@ export class ApiError extends Error {
 }
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const controller = new AbortController();
+  let timedOut = false;
+  const abort = () => controller.abort();
+  if (options.signal?.aborted) controller.abort();
+  else options.signal?.addEventListener("abort", abort, { once: true });
+  const timer = window.setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
   let response: Response;
   try {
-    response = await fetch(API_URL + path, { ...options, cache: "no-store" });
+    response = await fetch(API_URL + path, { ...options, signal: controller.signal, cache: "no-store" });
   } catch (error) {
+    if (timedOut) throw new Error("The server is taking too long to respond. Please try again.");
     if (typeof error === "object" && error !== null && "name" in error && error.name === "AbortError") throw error;
     Sentry.captureException(new Error("API connection failed"));
     throw new Error("Unable to connect. Check your connection and try again.");
+  } finally {
+    window.clearTimeout(timer);
+    options.signal?.removeEventListener("abort", abort);
   }
   if (!response.ok) {
     const message = response.status === 401 ? "Please sign in again."

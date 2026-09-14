@@ -1,17 +1,50 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root {
+  color-scheme: light;
+  --page: #f8fafc;
+  --surface: rgba(255, 255, 255, .92);
+  --surface-strong: #f1f5f9;
+  --border: #cbd5e1;
+  --text: #0f172a;
+  --muted: #475569;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0b0f19;
+  --surface: rgba(15, 23, 42, .6);
+  --surface-strong: #020617;
+  --border: #1e293b;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+}
 @layer base {
-  body { background: #0b0f19; color: #f1f5f9; font-family: Arial, sans-serif; }
+  body { background: var(--page); color: var(--text); font-family: Arial, sans-serif; transition: background-color .2s, color .2s; }
   button, a, input, select { touch-action: manipulation; }
   button { cursor: pointer; }
   button:disabled { cursor: wait; opacity: .6; }
   :focus-visible { outline: 2px solid #67e8f9; outline-offset: 4px; }
 }
 @layer components {
-  .panel { @apply rounded-2xl border border-slate-800 bg-slate-900/60 p-6; }
-  .field { @apply w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-slate-100; }
+  .site-nav { background: color-mix(in srgb, var(--page) 90%, transparent); border-color: var(--border); }
+  .site-footer { color: var(--muted); border-color: var(--border); }
+  .panel { @apply rounded-2xl border p-6; background: var(--surface); border-color: var(--border); }
+  .field { @apply w-full rounded-xl border p-3 text-sm; background: var(--surface-strong); border-color: var(--border); color: var(--text); }
   .button { @apply rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-500; }
-  .tag { @apply rounded-lg border border-slate-700 px-3 py-2 text-sm hover:border-indigo-400; }
+  .tag { @apply rounded-lg border px-3 py-2 text-sm hover:border-indigo-400; border-color: var(--border); }
+  .theme-toggle { @apply inline-flex h-10 w-10 items-center justify-center rounded-xl border transition-colors hover:border-indigo-400 hover:text-indigo-500; border-color: var(--border); }
 }
+[data-theme="light"] .text-slate-400 { color: #475569; }
+[data-theme="light"] .text-slate-500 { color: #64748b; }
+[data-theme="light"] .text-indigo-300 { color: #4338ca; }
+[data-theme="light"] .text-indigo-400 { color: #4f46e5; }
+[data-theme="light"] .text-cyan-200, [data-theme="light"] .text-cyan-300 { color: #0e7490; }
+[data-theme="light"] .text-emerald-300 { color: #047857; }
+[data-theme="light"] .text-amber-300 { color: #b45309; }
+[data-theme="light"] .text-rose-300 { color: #be123c; }
+[data-theme="light"] .bg-slate-900 { background: #e2e8f0; }
+[data-theme="light"] .border-slate-800 { border-color: var(--border); }
 .job-description { overflow-wrap: anywhere; line-height: 1.8; }
 .job-description p, .job-description ul, .job-description ol { margin-bottom: 1rem; }
 .job-description ul { list-style: disc; padding-left: 1.5rem; }
