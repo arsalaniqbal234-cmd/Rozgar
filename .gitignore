@@ -1,0 +1,22 @@
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/venv/
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.ruff_cache/
+**/.next/
+**/playwright-report/
+**/test-results/
+**/*.tsbuildinfo
+
+# Legacy local scaffolding; the maintained migrations live under Backend/alembic.
+/alembic/
+/alembic.ini
+
+# The Python backend does not use Node packages.
+/Backend/package.json
+/Backend/package-lock.json

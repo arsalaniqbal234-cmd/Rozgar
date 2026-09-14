@@ -25,3 +25,12 @@ Runs on `http://localhost:3000`
 - Next.js
 - React
 - Tailwind CSS
+
+## Verification
+
+Run `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, and
+`npm run test:e2e`. Browser tests cover desktop and phone-sized feed behavior, job
+details, and error recovery.
+
+The operations page is `/health`. The backend only returns its data to authenticated
+Clerk users listed in `ADMIN_USER_IDS`.

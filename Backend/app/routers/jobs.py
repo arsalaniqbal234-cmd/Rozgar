@@ -1,112 +1,76 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
-from sqlalchemy.orm import Session
-import requests
+import hmac
 import os
+import time
 
-from database import get_db
-from app import crud
-from app import schemas
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response
+from sqlalchemy.orm import Session
+
+from app import cache, crud, schemas
+from app.auth import verify_api_key
+from app.pipeline import scrape_all, scrape_source
 from app.scrapers import AVAILABLE_SCRAPERS
+from database import get_db
 
 router = APIRouter()
 
 
+def parameters(
+    keyword: str = Query("", max_length=200), company: str | None = Query(None, max_length=200),
+    location: str | None = Query(None, max_length=200),
+    min_salary: int | None = Query(None, ge=0, le=1000000000),
+    salary_only: bool = False, remote_only: bool = False,
+    salary_currency: str = Query("USD", pattern="^[A-Z]{3}$"),
+    salary_period: str = Query("annual", pattern="^(annual|monthly|hourly)$"),
+    limit: int = Query(20, ge=1, le=100), offset: int = Query(0, ge=0, le=100000),
+    before_id: int | None = Query(None, ge=1),
+):
+    return locals()
+
+
 @router.get("/search", response_model=list[schemas.JobResponse])
-async def search(
-    keyword: str,
-    limit: int = 10,
-    db: Session = Depends(get_db)
-):
-    return crud.search_jobs(db, keyword, limit)
-
-
-@router.post("/scrape/{source}")
-async def scrape_jobs(
-    source: str,
-    db: Session = Depends(get_db),
-    x_api_key: str = Header(None)
-):
-    if x_api_key != os.getenv("SCRAPE_SECRET_KEY"):
-        raise HTTPException(
-            status_code=403,
-            detail="Invalid or missing API key"
-        )
-
-    if source not in AVAILABLE_SCRAPERS:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Unknown source '{source}'. Available: {list(AVAILABLE_SCRAPERS.keys())}"
-        )
-
-    scraper_class = AVAILABLE_SCRAPERS[source]
-    scraper = scraper_class()
-
-    try:
-        normalized_jobs = scraper.run()
-    except requests.exceptions.Timeout:
-        raise HTTPException(
-            status_code=504,
-            detail=f"{source} took too long to respond"
-        )
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Failed to fetch jobs from {source}: {str(e)}"
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Failed to parse jobs from {source}: {str(e)}"
-        )
-
-    added_count = 0
-    skipped_count = 0
-
-    try:
-        for job in normalized_jobs:
-            existing = crud.get_job_by_source_id(db, job.source_id)
-
-            if existing:
-                skipped_count += 1
-                continue
-
-            crud.create_job_from_normalized(db, job.to_dict())
-            added_count += 1
-
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail=f"Database error while saving jobs: {str(e)}"
-        )
-
-    return {
-        "source": source,
-        "message": f"{added_count} new jobs added, {skipped_count} duplicates skipped"
-    }
-
-
 @router.get("/jobs", response_model=list[schemas.JobResponse])
-async def get_jobs(
-    limit: int = 20,
-    offset: int = 0,
-    db: Session = Depends(get_db)
-):
-    return crud.get_all_jobs(db, limit=limit, offset=offset)
+def get_jobs(response: Response, params: dict = Depends(parameters), db: Session = Depends(get_db)):
+    start = time.perf_counter()
+    def load():
+        filters = {k: v for k, v in params.items() if k not in {"limit", "offset", "before_id"}}
+        query = crud.job_query(db, **filters)
+        if params["before_id"] is not None:
+            from app.models import Job
+            query = query.filter(Job.id < params["before_id"])
+        from app.models import Job
+        rows = query.order_by(Job.id.desc()).offset(params["offset"]).limit(params["limit"]).all()
+        return [schemas.JobResponse.model_validate(row).model_dump(mode="json") for row in rows]
+    result, cache_status = cache.get_or_load(params, load)
+    response.headers["X-Cache"] = cache_status
+    response.headers["Server-Timing"] = f'jobs;dur={(time.perf_counter()-start)*1000:.2f}'
+    return result
 
 
 @router.get("/jobs/{job_id}", response_model=schemas.JobResponse)
-async def get_job(
-    job_id: int,
-    db: Session = Depends(get_db)
-):
+def get_job(job_id: int, db: Session = Depends(get_db)):
     job = crud.get_job_by_id(db, job_id)
-
     if not job:
-        raise HTTPException(
-            status_code=404,
-            detail="Job not found"
-        )
-
+        raise HTTPException(404, "Job not found")
     return job
+
+
+@router.post("/scrape/{source}")
+def scrape_jobs(source: str, _: None = Depends(verify_api_key)):
+    if source not in AVAILABLE_SCRAPERS:
+        raise HTTPException(404, "Unknown source")
+    return scrape_source(source)
+
+
+@router.post("/scrape-all")
+def scrape_all_sources(_: None = Depends(verify_api_key)):
+    return {"results": scrape_all()}
+
+
+@router.post("/cron/scrape-all")
+def cron_scrape_all(authorization: str | None = Header(None)):
+    secret = os.getenv("CRON_SECRET")
+    if not secret or not authorization or not hmac.compare_digest(
+        authorization.encode(), ("Bearer " + secret).encode()
+    ):
+        raise HTTPException(401, "Unauthorized")
+    return {"results": scrape_all()}

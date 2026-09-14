@@ -75,3 +75,14 @@ Runs on `http://localhost:3000`
 |---|---|
 | `DATABASE_URL` | PostgreSQL connection string |
 | `SCRAPE_SECRET_KEY` | API key required to trigger `/scrape` |
+
+## Production hardening
+
+Week 7 adds authenticated saved searches, durable non-duplicate alerts, Redis search
+caching, database search indexes, per-source pipeline monitoring, Sentry integration,
+tests, and CI. See the [week 7 plan](docs/week-7-plan.md) and
+[week 7 runbook](docs/week-7-runbook.md) for acceptance criteria and deployment steps.
+
+Week 8 release evidence, the owned search-latency metric, launch gates, architecture,
+and presentation are documented in the [week 8 release](docs/week-8-release.md),
+[architecture](docs/architecture.md), and [demo script](docs/demo-script.md).
