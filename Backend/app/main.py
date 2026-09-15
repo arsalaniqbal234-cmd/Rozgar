@@ -13,6 +13,7 @@ setup_monitoring()
 app = FastAPI(title="Rozgar API", version="0.8.0")
 app.add_middleware(
     CORSMiddleware, allow_origins=origins(), allow_credentials=True,
+    allow_origin_regex=r"^https://jobsi(?:-[a-z0-9-]+)?-codeaza1\.vercel\.app$",
     allow_methods=["GET", "POST", "DELETE"], allow_headers=["Authorization", "Content-Type", "X-API-Key"],
     expose_headers=["X-Cache", "Server-Timing", "X-Request-ID"],
 )

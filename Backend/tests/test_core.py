@@ -57,6 +57,18 @@ def test_saved_search_requires_authentication(client):
     assert client.get("/health").status_code == 401
 
 
+def test_cors_accepts_rozgar_deployment_urls_only(client):
+    headers = {"Access-Control-Request-Method": "GET"}
+    old_url = "https://jobsi-5dkqteyly-codeaza1.vercel.app"
+    response = client.options("/jobs", headers={**headers, "Origin": old_url})
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == old_url
+    unrelated = "https://jobsi-5dkqteyly-otherteam.vercel.app"
+    denied = client.options("/jobs", headers={**headers, "Origin": unrelated})
+    assert denied.status_code == 400
+    assert "access-control-allow-origin" not in denied.headers
+
+
 def test_vercel_cron_requires_secret_and_runs_one_source(client, monkeypatch):
     monkeypatch.setenv("CRON_SECRET", "test-cron-secret")
     calls = []

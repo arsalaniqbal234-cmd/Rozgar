@@ -21,6 +21,9 @@ The frontend rewrites `/api/jobs`, `/api/saved-searches`, and `/api/health` to
 that backend URL. Browser requests stay on the website's origin, so temporary
 Vercel deployment URLs do not require separate entries in backend `CORS_ORIGINS`.
 The direct public API still uses CORS for callers on other origins.
+For older frontend snapshots that call the backend directly, backend CORS also
+accepts deployment URLs under the `jobsi` project in the `codeaza1` Vercel team.
+This is scoped to that project and does not admit arbitrary Vercel origins.
 
 ## Normal release
 
