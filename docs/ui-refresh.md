@@ -45,28 +45,44 @@ design uses system fonts and CSS, with no external illustration/font downloads.
 - Backend tests verify summary/full-response compatibility, cursor pagination,
   separate cache keys, and that serialization performs no per-row description loads.
 
-## Existing production deployment
+## Production release, September 15, 2026
 
-Source of truth: `arsalaniqbal234-cmd/Rozgar`.
+The combined repository, `arsalaniqbal234-cmd/Rozgar`, contains the complete
+implementation at commit `5d148f9`. Its GitHub CI run passed. The existing Vercel
+projects are still connected to `jobfrontend` and `jobbackend`, so the matching
+source changes were published to those repositories as separate release commits.
+A push to `Rozgar` alone does not rebuild the existing domains.
 
-At review time, Vercel's existing frontend and backend projects were still linked
-to the older `jobfrontend` and `jobbackend` repositories. A push to `Rozgar` alone
-does not deploy those sites. An authenticated Vercel operator should connect the
-existing projects to the combined repository:
+| Public domain | Vercel project | Published repository head | Live result |
+| --- | --- | --- | --- |
+| https://jobsi-ten.vercel.app | `codeaza1/jobsi` | `jobfrontend` `2fd5206` | Real jobs loaded; desktop and mobile browser checks passed |
+| https://jobs-codeaza1.vercel.app | `codeaza1/jobs` | `jobbackend` `728d3a1` | Liveness and readiness returned 200; summary listing returned 200 |
 
-| Existing site | Root directory | Framework |
-| --- | --- | --- |
-| https://jobsi-ten.vercel.app | `Frontend` | Next.js |
-| https://jobs-codeaza1.vercel.app | `Backend` | Existing Python/Vercel configuration |
+The production frontend API setting had been entered as a Markdown link, which
+made the browser request a nonexistent path on the frontend. It is now the plain
+URL `https://jobs-codeaza1.vercel.app`, and the public jobs feed loads. The build
+now rejects malformed URLs and missing or local API URLs in Vercel production.
+The backend `pyproject.toml` now declares the pinned runtime dependencies, because
+Vercel's Python builder selected it and the initial backend deployment failed.
+The rebuilt backend is healthy against the configured production database.
 
-Keep each project's existing domains and production environment variables.
-Set frontend `NEXT_PUBLIC_API_URL` to the deployed backend URL. Configure the
-matching Clerk keys/issuer and backend CORS/authorized frontend origins using the
-example environment files. Apply required migrations once using the existing
-runbook before deploying code that depends on them.
+Matching Clerk development-instance keys and allowed frontend origins were added
+to the two existing Vercel projects without printing or committing their values.
+The live browser test opened sign-in, signed in a temporary synthetic Clerk user,
+created and listed one owned saved search, confirmed it persisted after reload,
+deleted it, and removed the temporary user. The public shortlist likewise
+persisted after reload. The live mobile page loaded 20 real job cards, retained
+dark mode after reload, and had no horizontal viewport overflow.
 
-Deploy the backend first, check `/health/live`, `/health/ready` and
-`/jobs?summary=true&limit=1`, then deploy the frontend. Verify the public site,
-sign-in, owned saved searches, and local shortlist. Keep the previous Vercel
-deployments available for rollback. Deployment is complete only after these live
-checks; local tests and a GitHub push are not deployment evidence.
+These are development-instance Clerk keys (`pk_test_`/`sk_test_`). A production
+Clerk instance and its matching keys must be provided before relying on this as
+a public authentication launch. No production Resend API key or verified sender
+was available, so creating a saved search works but email alert delivery is
+disabled and was not tested. The scheduler is a separate process and is not
+started by the Vercel API deployment. Backend readiness reported `cache: disabled`
+because Redis was not configured; the public frontend still uses the bounded
+30-second cache and smaller summary responses described above.
+
+Previous Vercel deployments remain available for rollback. Connecting both
+projects directly to `Rozgar` with `Frontend` and `Backend` root directories would
+remove the need to mirror future releases into the old repositories.
