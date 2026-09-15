@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs/config";
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = (process.env.NEXT_PUBLIC_API_URL || (!process.env.VERCEL ? "http://localhost:8000" : "")).replace(/\/$/, "");
 const isVercelProduction = process.env.VERCEL_ENV === "production";
 if (isVercelProduction && !apiUrl) {
   throw new Error("NEXT_PUBLIC_API_URL is required for a Vercel production deployment.");
@@ -17,6 +17,11 @@ if (apiUrl) {
   }
 }
 const config: NextConfig = {
+  async rewrites() { return [
+    { source: "/api/jobs/:path*", destination: `${apiUrl}/jobs/:path*` },
+    { source: "/api/saved-searches/:path*", destination: `${apiUrl}/saved-searches/:path*` },
+    { source: "/api/health", destination: `${apiUrl}/health` },
+  ]; },
   async headers() { return [{ source: "/(.*)", headers: [
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

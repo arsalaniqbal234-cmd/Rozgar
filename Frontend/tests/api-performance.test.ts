@@ -18,6 +18,7 @@ describe("public job cache", () => {
   it("reuses a recent listing but keeps different filters separate", async () => {
     const path = "/jobs?summary=true&keyword=python";
     expect(await api(path, cached)).toEqual([{ id: 1 }]);
+    expect(fetchMock).toHaveBeenCalledWith("/api/jobs?summary=true&keyword=python", expect.any(Object));
     expect(await api(path, cached)).toEqual([{ id: 1 }]);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     await api("/jobs?summary=true&keyword=design", cached);

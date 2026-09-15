@@ -1,6 +1,8 @@
 import * as Sentry from "@sentry/nextjs";
 
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
+// The Next.js rewrite forwards these same-origin requests to the backend.
+// Deployment URLs then work without adding each temporary hostname to backend CORS.
+export const API_URL = "/api";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }

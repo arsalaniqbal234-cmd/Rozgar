@@ -17,6 +17,10 @@ environment settings and domains stay with the same projects when their Git
 connections change. The backend needs `DATABASE_URL`; the frontend needs a plain
 `NEXT_PUBLIC_API_URL=https://jobs-codeaza1.vercel.app`. Both projects have matching
 Clerk development-instance settings for the currently verified sign-in flow.
+The frontend rewrites `/api/jobs`, `/api/saved-searches`, and `/api/health` to
+that backend URL. Browser requests stay on the website's origin, so temporary
+Vercel deployment URLs do not require separate entries in backend `CORS_ORIGINS`.
+The direct public API still uses CORS for callers on other origins.
 
 ## Normal release
 
@@ -46,6 +50,9 @@ will consume a build for both apps.
 Check `GET /health/live`, `GET /health/ready`, and
 `GET /jobs?summary=true&limit=1` on the API. Then open the website, search for a
 real job, open its details, and confirm a shortlisted job survives a reload.
+Also open the newest deployment URL in a browser and confirm the job feed loads;
+its network requests should be to the same-origin `/api/jobs` path. Older
+deployment URLs are immutable snapshots and retain the code they were built with.
 When authentication settings change, also verify sign-in and owned saved-search
 create/list/delete with a test account. A green GitHub check does not verify the
 public domains by itself.

@@ -3,7 +3,7 @@ import uuid
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from app.config import origins
 from app.observability import report_failure, setup_monitoring
@@ -40,6 +40,11 @@ async def request_context(request: Request, call_next):
 @app.get("/")
 def home():
     return {"message": "Rozgar API running"}
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return Response(status_code=204)
 
 
 app.include_router(jobs.router)
