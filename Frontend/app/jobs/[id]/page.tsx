@@ -1,33 +1,51 @@
 "use client";
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowUpRight, Building2, Check, Copy, Globe2, MapPin, Wallet } from "lucide-react";
 import DOMPurify from "isomorphic-dompurify";
 import { api, Job, safeLink, salaryLabel } from "../../../lib/api";
+import BookmarkButton from "../../components/bookmark-button";
 
 export default function JobPage() {
   const { id } = useParams<{ id: string }>();
-  const [state, setState] = useState<{ id: string; job?: Job; error?: string }>({ id: "" });
+  const [state, setState] = useState<{ key: string; job?: Job; error?: string }>({ key: "" });
   const [retry, setRetry] = useState(0);
+  const [shareNotice, setShareNotice] = useState("");
+  const key = id + ":" + retry;
   useEffect(() => {
     const controller = new AbortController();
     api<Job>("/jobs/" + encodeURIComponent(id), { signal: controller.signal })
-      .then(job => { if (!controller.signal.aborted) setState({ id, job }); })
-      .catch(error => { if (!controller.signal.aborted) setState({ id, error: error.message }); });
+      .then(job => { if (!controller.signal.aborted) setState({ key, job }); })
+      .catch(error => { if (!controller.signal.aborted) setState({ key, error: error.message }); });
     return () => controller.abort();
-  }, [id, retry]);
-  const job = state.id === id ? state.job : undefined;
-  return <main className="mx-auto max-w-3xl px-5 py-10">
-    <Link href="/" className="text-indigo-300">← Back to jobs</Link>
-    {state.id !== id && <p role="status" className="my-8">Loading job…</p>}
-    {state.id === id && state.error && <div role="alert" className="panel mt-6">{state.error}
-      <button className="tag ml-3" onClick={() => setRetry(n => n + 1)}>Retry</button></div>}
-    {job && <article className="panel mt-6">
-      <p className="text-cyan-300">{job.company}</p><h1 className="my-4 text-3xl font-bold">{job.title}</h1>
-      <p className="text-emerald-300">{salaryLabel(job)}</p>
-      <p className="mt-3 text-slate-400">{job.location || "Location not listed"} · {job.is_remote ? "Remote" : "Work arrangement not confirmed"}</p>
+  }, [id, key]);
+  const job = state.key === key ? state.job : undefined;
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShareNotice("Link copied. Share it with someone who might be interested.");
+    } catch { setShareNotice("Copy this page’s address from your browser to share this job."); }
+  }
+  return <main id="main-content" className="page-shell detail-shell">
+    <Link href="/" className="back-link"><ArrowLeft size={16} aria-hidden />Back to jobs</Link>
+    {state.key !== key && <p role="status" className="my-8">Loading job…</p>}
+    {state.key === key && state.error && <div role="alert" className="empty-state"><h3>This opportunity couldn’t be loaded</h3><p>{state.error}</p><button className="button" onClick={() => setRetry(n => n + 1)}>Retry</button></div>}
+    {job && <article className="panel">
+      <div className="detail-header"><div><p className="eyebrow"><Building2 size={16} aria-hidden />{job.company}</p><h1>{job.title}</h1></div><BookmarkButton job={job} /></div>
+      <div className="detail-facts">
+        <p><Wallet size={16} aria-hidden />{salaryLabel(job)}</p>
+        <p><MapPin size={16} aria-hidden />{job.location || "Location not listed"}</p>
+        <p><Globe2 size={16} aria-hidden />{job.is_remote ? "Remote" : "Work arrangement not confirmed"}</p>
+      </div>
       <div className="job-description my-8" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(job.description || "<p>No description provided.</p>", { FORBID_TAGS: ["style", "form", "input"] }) }} />
-      {safeLink(job.url) && <a className="button inline-block" href={safeLink(job.url)} target="_blank" rel="noopener noreferrer">Apply on employer’s website ↗</a>}
+      <div className="detail-actions">
+        {safeLink(job.url) && <a className="button" href={safeLink(job.url)} target="_blank" rel="noopener noreferrer">Apply on employer’s website <ArrowUpRight size={17} aria-hidden /></a>}
+        <button type="button" className="tag" onClick={copyLink}>{shareNotice.startsWith("Link copied") ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />}Copy job link</button>
+      </div>
+      {shareNotice && <p className="mt-4 text-sm text-slate-400" role="status">{shareNotice}</p>}
+      <p className="mt-6 text-xs text-slate-500">Applications open on the employer’s website. Check the original listing for the latest details.</p>
     </article>}
   </main>;
 }

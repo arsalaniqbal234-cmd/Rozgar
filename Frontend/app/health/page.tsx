@@ -28,7 +28,7 @@ export default function HealthPage() {
     const timer = setInterval(() => void load(), 30000);
     return () => { controller.abort(); clearInterval(timer); };
   }, [isSignedIn, getToken, userId, refresh]);
-  return <main className="mx-auto max-w-6xl px-5 py-10">
+  return <main id="main-content" className="mx-auto max-w-6xl px-5 py-10">
     <h1 className="text-3xl font-bold">Pipeline health</h1>
     <p className="my-4 text-slate-400">Operations dashboard · refreshes every 30 seconds</p>
     <Show when="signed-out"><SignInButton mode="modal"><button className="button">Sign in</button></SignInButton></Show>

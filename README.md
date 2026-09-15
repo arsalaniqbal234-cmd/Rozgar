@@ -10,6 +10,9 @@ A full-stack web app that scrapes remote job listings from RemoteOK and displays
 - **Deployment:** Vercel (frontend + backend)
 
 ## Features
+- Professional light/dark interface with responsive grid and list views
+- Personal browser shortlist, quick career filters, keyboard search, and job sharing
+- Lightweight job summaries and short-lived public-search caching
 - Scrapes live job data from RemoteOK's public API
 - Deduplication — prevents the same job from being added twice
 - Real database search (title/company match)
@@ -77,6 +80,10 @@ Runs on `http://localhost:3000`
 | `SCRAPE_SECRET_KEY` | API key required to trigger `/scrape` |
 
 ## Production hardening
+
+The latest [job discovery refresh](docs/ui-refresh.md) preserves existing features,
+adds a personal shortlist, and documents performance measurements and deployment
+requirements for the combined repository.
 
 Week 7 adds authenticated saved searches, durable non-duplicate alerts, Redis search
 caching, database search indexes, per-source pipeline monitoring, Sentry integration,

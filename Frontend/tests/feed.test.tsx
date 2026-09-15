@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "../app/page";
 import SavedSearchesPage from "../app/saved-searches/page";
-import { api, salaryLabel, safeLink } from "../lib/api";
+import { api, clearJobCache, salaryLabel, safeLink } from "../lib/api";
 import { scrubEvent } from "../lib/sentry";
 
 const auth = vi.hoisted(() => ({ user: { id: "user_a" } as { id: string } | null, getToken: vi.fn(async () => "signed-token") }));
@@ -18,6 +18,7 @@ const job = { id: 21, source_id: "remoteok_21", title: "Python engineer", compan
   salary: 100000, salary_currency: "USD", salary_period: "annual", url: "https://example.com/job", is_remote: true };
 const fetchMock = vi.fn();
 beforeEach(() => {
+  clearJobCache();
   auth.user = { id: "user_a" };
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockReset();
@@ -103,6 +104,16 @@ it("rejects unsafe application links and respects currency metadata", () => {
   expect(safeLink("javascript:alert(1)")).toBeUndefined();
   expect(safeLink("https://example.com")).toBe("https://example.com");
   expect(salaryLabel({ ...job, salary_currency: "PKR", salary_period: "monthly" })).toBe("PKR 100,000 / monthly");
+});
+
+it("ends saved-search loading on failure and recovers through retry", async () => {
+  fetchMock.mockResolvedValueOnce(Response.json({}, { status: 503 }))
+    .mockResolvedValueOnce(Response.json([]));
+  render(<SavedSearchesPage />);
+  expect(await screen.findByRole("alert")).toHaveTextContent("temporarily unavailable");
+  expect(screen.queryByText("Loading saved searches…")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+  expect(await screen.findByText(/No saved searches yet/)).toBeInTheDocument();
 });
 
 it("does not report cancellations as service failures", async () => {

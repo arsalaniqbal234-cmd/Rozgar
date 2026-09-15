@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { ClerkProvider } from "@clerk/nextjs";
 import Navigation from "./components/navigation";
 import "./globals.css";
@@ -9,7 +11,8 @@ const themeScript = `(function(){try{var t=localStorage.getItem('rozgar-theme');
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return <ClerkProvider><html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head><body>
+    <a className="skip-link" href="#main-content">Skip to content</a>
     <Navigation />{children}
-    <footer className="site-footer mx-auto mt-12 max-w-7xl border-t px-5 py-8 text-sm">Rozgar · Opportunities from multiple job boards</footer>
+    <footer className="site-footer"><div className="footer-inner"><div><Link href="/" className="brand">rozgar<span className="brand-dot">.</span></Link><p>Good work. Better possibilities.</p></div><div className="footer-links"><Link href="/">Explore jobs</Link><Link href="/shortlist">Your shortlist</Link><Link href="/saved-searches">Saved searches <ArrowUpRight size={14} aria-hidden /></Link></div></div><div className="footer-bottom">Rozgar · Opportunities from multiple job boards<span>Made for your next chapter.</span></div></footer>
   </body></html></ClerkProvider>;
 }

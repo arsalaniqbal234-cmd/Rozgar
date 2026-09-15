@@ -1,5 +1,7 @@
 "use client";
 import { Show, SignInButton, useAuth } from "@clerk/nextjs";
+import Link from "next/link";
+import { ArrowUpRight, Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api, SavedSearch } from "../../lib/api";
 
@@ -8,18 +10,20 @@ export default function SavedSearchesPage() {
   const [owner, setOwner] = useState<string | null>(null);
   const [items, setItems] = useState<SavedSearch[]>([]);
   const [error, setError] = useState("");
-  const [loaded, setLoaded] = useState(false);
+  const [loadedKey, setLoadedKey] = useState("");
   const [busy, setBusy] = useState<number | null>(null);
   const [refresh, setRefresh] = useState(0);
+  const requestKey = (userId || "") + ":" + refresh;
+  const loaded = loadedKey === requestKey;
   useEffect(() => {
     if (!isSignedIn) return;
     const controller = new AbortController();
     getToken().then(token => api<SavedSearch[]>("/saved-searches/", {
       headers: { Authorization: `Bearer ${token}` }, signal: controller.signal,
-    })).then(data => { if (!controller.signal.aborted) { setOwner(userId || null); setItems(data); setError(""); setLoaded(true); } })
-      .catch(error => { if (!controller.signal.aborted) { setError(error.message); setLoaded(true); } });
+    })).then(data => { if (!controller.signal.aborted) { setOwner(userId || null); setItems(data); setError(""); setLoadedKey(requestKey); } })
+      .catch(error => { if (!controller.signal.aborted) { setOwner(userId || null); setError(error.message); setLoadedKey(requestKey); } });
     return () => controller.abort();
-  }, [isSignedIn, getToken, userId, refresh]);
+  }, [isSignedIn, getToken, userId, requestKey]);
 
   async function remove(id: number) {
     setBusy(id);
@@ -31,15 +35,17 @@ export default function SavedSearchesPage() {
     } catch (error) { setError((error as Error).message); }
     finally { setBusy(null); }
   }
-  return <main className="mx-auto max-w-3xl px-5 py-10">
-    <h1 className="text-3xl font-bold">Saved searches</h1>
-    <p className="my-5 text-slate-400">Alerts use your verified account email. Delete a search to stop its alerts.</p>
+  return <main id="main-content" className="page-shell detail-shell">
+    <header className="page-header mb-8"><p className="eyebrow mb-3"><Bell size={15} aria-hidden />GOOD OPPORTUNITIES, LESS SEARCHING</p>
+    <h1>Saved searches</h1>
+    <p className="my-5 text-slate-400">Let your next opportunity come to you. Alerts use your verified account email. Delete a search to stop its alerts.</p>
+    <Link className="back-link" href="/">Find a new opportunity <ArrowUpRight size={15} aria-hidden /></Link></header>
     <Show when="signed-out"><SignInButton mode="modal"><button className="button">Sign in to view your searches</button></SignInButton></Show>
     <Show when="signed-in">
       {(!loaded || owner !== userId) && <p role="status">Loading saved searches…</p>}
-      {error && <div role="alert" className="panel">{error} <button className="tag" onClick={() => setRefresh(n => n + 1)}>Retry</button></div>}
+      {loaded && error && <div role="alert" className="panel">{error} <button className="tag" onClick={() => setRefresh(n => n + 1)}>Retry</button></div>}
       {loaded && owner === userId && !error && items.length === 0 && <p className="panel">No saved searches yet. Save one from the job feed.</p>}
-      <div className="space-y-4">{(owner === userId ? items : []).map(item => <article key={item.id} className="panel flex flex-wrap items-center justify-between gap-4">
+      <div className="space-y-4">{(loaded && owner === userId && !error ? items : []).map(item => <article key={item.id} className="panel flex flex-wrap items-center justify-between gap-4">
         <div><h2 className="text-lg font-bold">{item.keywords}</h2>
           <p className="mt-2 text-sm text-slate-400">{item.location || "Any location"}
             {item.min_salary ? ` · USD ${item.min_salary.toLocaleString()}+ annually` : ""}

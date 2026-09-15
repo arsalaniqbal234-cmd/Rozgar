@@ -6,43 +6,80 @@ export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 
+const JOB_CACHE_TTL = 30_000;
+const JOB_CACHE_LIMIT = 40;
+const jobCache = new Map<string, { expires: number; value: unknown }>();
+
+export function clearJobCache() { jobCache.clear(); }
+
+function canCacheJobs(path: string, options: RequestInit): boolean {
+  return typeof window !== "undefined" && options.cache === "force-cache"
+    && (!options.method || options.method.toUpperCase() === "GET")
+    && !options.body && options.credentials !== "include"
+    && Array.from(new Headers(options.headers).keys()).length === 0
+    && /^\/(jobs|search)(\?|$)/.test(path);
+}
+
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const cancelled = () => new DOMException("The request was cancelled.", "AbortError");
+  if (options.signal?.aborted) throw cancelled();
+  const cacheable = canCacheJobs(path, options);
+  const cached = cacheable ? jobCache.get(path) : undefined;
+  if (cached && cached.expires > Date.now()) {
+    jobCache.delete(path);
+    jobCache.set(path, cached);
+    return cached.value as T;
+  }
+  jobCache.delete(path);
   const controller = new AbortController();
   let timedOut = false;
   const abort = () => controller.abort();
-  if (options.signal?.aborted) controller.abort();
-  else options.signal?.addEventListener("abort", abort, { once: true });
-  const timer = window.setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
-  let response: Response;
+  options.signal?.addEventListener("abort", abort, { once: true });
+  const timer = globalThis.setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
   try {
-    response = await fetch(API_URL + path, { ...options, signal: controller.signal, cache: "no-store" });
+    const response = await fetch(API_URL + path, { ...options, signal: controller.signal, cache: "no-store" });
+    if (options.signal?.aborted) throw cancelled();
+    if (!response.ok) {
+      const message = response.status === 401 ? "Please sign in again."
+        : response.status === 403 ? "You do not have permission for this action."
+        : response.status === 404 ? "This item was not found."
+        : response.status === 409 ? "This request conflicts with an existing item or account limit."
+        : response.status === 422 ? "Please check your search details."
+        : "The service is temporarily unavailable. Please try again.";
+      if (response.status >= 500) Sentry.captureException(new Error(`API request failed: ${response.status}`));
+      throw new ApiError(response.status, message);
+    }
+    if (response.status === 204) return undefined as T;
+    // Keep the timeout active until the response body has finished downloading.
+    const value = await response.json() as T;
+    if (options.signal?.aborted) throw cancelled();
+    if (timedOut) throw new Error("Response timed out");
+    if (cacheable) {
+      for (const [key, entry] of jobCache) {
+        if (entry.expires <= Date.now()) jobCache.delete(key);
+      }
+      if (jobCache.size >= JOB_CACHE_LIMIT) jobCache.delete(jobCache.keys().next().value!);
+      jobCache.set(path, { expires: Date.now() + JOB_CACHE_TTL, value });
+    }
+    return value;
   } catch (error) {
+    if (options.signal?.aborted) throw cancelled();
     if (timedOut) throw new Error("The server is taking too long to respond. Please try again.");
+    if (error instanceof ApiError) throw error;
     if (typeof error === "object" && error !== null && "name" in error && error.name === "AbortError") throw error;
     Sentry.captureException(new Error("API connection failed"));
     throw new Error("Unable to connect. Check your connection and try again.");
   } finally {
-    window.clearTimeout(timer);
+    globalThis.clearTimeout(timer);
     options.signal?.removeEventListener("abort", abort);
   }
-  if (!response.ok) {
-    const message = response.status === 401 ? "Please sign in again."
-      : response.status === 403 ? "You do not have permission for this action."
-      : response.status === 404 ? "This item was not found."
-      : response.status === 409 ? "This request conflicts with an existing item or account limit."
-      : response.status === 422 ? "Please check your search details."
-      : "The service is temporarily unavailable. Please try again.";
-    if (response.status >= 500) Sentry.captureException(new Error(`API request failed: ${response.status}`));
-    throw new ApiError(response.status, message);
-  }
-  if (response.status === 204) return undefined as T;
-  return response.json() as Promise<T>;
 }
 
 export type Job = {
   id: number; source_id: string; title: string; company: string; url: string;
   salary: number | null; salary_currency?: string | null; salary_period?: string | null;
   description?: string | null; location?: string | null; is_remote: boolean;
+  created_at?: string | null;
 };
 export type SavedSearch = {
   id: number; keywords: string; location?: string; min_salary?: number;

@@ -20,7 +20,7 @@ export default function ThemeToggle() {
   function toggleTheme() {
     const selected = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = selected;
-    window.localStorage.setItem("rozgar-theme", selected);
+    try { window.localStorage.setItem("rozgar-theme", selected); } catch { /* The theme still works when storage is unavailable. */ }
     window.dispatchEvent(new Event("rozgar-theme-change"));
   }
 

@@ -1,10 +1,20 @@
 "use client";
+
 import Link from "next/link";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useRef, useState } from "react";
-import { Search, Briefcase, ArrowUpRight } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Bell, Bookmark, BriefcaseBusiness, Check, Code2, Compass, Globe2, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { api, salaryLabel } from "../lib/api";
 import { Filters, initialFilters, useJobs } from "../lib/use-jobs";
+import BookmarkButton from "./components/bookmark-button";
+
+const paths = [
+  { label: "Engineering", keyword: "engineer", icon: Code2 },
+  { label: "Design", keyword: "design", icon: Compass },
+  { label: "Data & analytics", keyword: "data", icon: Sparkles },
+  { label: "Marketing", keyword: "marketing", icon: Globe2 },
+];
+const sources: Record<string, string> = { remoteok: "RemoteOK", arbeitnow: "Arbeitnow", jobicy: "Jobicy" };
 
 export default function Home() {
   const { user } = useUser();
@@ -12,10 +22,24 @@ export default function Home() {
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [notice, setNotice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [view, setView] = useState<"grid" | "list">("grid");
   const feed = useJobs(filters);
   const { hasMore, loading, loadingMore, error: feedError, loadMore } = feed;
   const sentinel = useRef<HTMLDivElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const update = (patch: Partial<Filters>) => setFilters(previous => ({ ...previous, ...patch }));
+  const activeCount = Object.values(filters).filter(Boolean).length;
+
+  useEffect(() => {
+    function focusSearch(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey || target?.isContentEditable || target?.closest("input, textarea, select, [role=dialog]")) return;
+      event.preventDefault();
+      searchInput.current?.focus();
+    }
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
 
   useEffect(() => {
     if (!sentinel.current || !hasMore || loading || loadingMore || feedError) return;
@@ -28,11 +52,12 @@ export default function Home() {
 
   async function saveSearch() {
     if (!user) { setNotice("Please sign in to save searches."); return; }
-    if (!filters.keyword.trim()) { setNotice("Enter a keyword before saving."); return; }
+    if (!filters.keyword.trim()) { setNotice("Enter a keyword before saving."); searchInput.current?.focus(); return; }
     setSaving(true);
     setNotice("");
     try {
       const token = await getToken();
+      if (!token) throw new Error("Please sign in again.");
       await api("/saved-searches/", { method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ keywords: filters.keyword, location: filters.location || null,
@@ -43,69 +68,81 @@ export default function Home() {
     finally { setSaving(false); }
   }
 
-  return <main className="mx-auto max-w-7xl px-5 py-10">
-    <header className="mx-auto max-w-3xl pb-10 text-center">
-      <p className="mb-4 text-sm font-semibold tracking-wide text-cyan-300">YOUR NEXT OPPORTUNITY</p>
-      <h1 className="text-4xl font-extrabold leading-tight sm:text-6xl">Find work that <span className="text-indigo-400">works for you.</span></h1>
-      <p className="mt-5 text-slate-400">Explore roles from multiple job boards. Search, filter, and save alerts for new matching jobs.</p>
-    </header>
-    <section aria-label="Search and filters" className="panel mb-8 space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <label className="relative flex-1"><span className="sr-only">Search jobs</span>
-          <Search aria-hidden className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
-          <input className="field pl-11" placeholder="Job title or company" maxLength={200}
-            value={filters.keyword} onChange={event => update({ keyword: event.target.value })} />
-        </label>
-        <button className="button" onClick={saveSearch} disabled={saving}>{saving ? "Saving…" : "Save search"}</button>
+  return <main id="main-content" className="page-shell">
+    <section className="hero" aria-labelledby="hero-title">
+      <div className="hero-copy">
+        <p className="eyebrow"><span className="status-dot" /> A little direction. A world of opportunity.</p>
+        <h1 id="hero-title">Good work.<br /><span>Better possibilities.</span></h1>
+        <p className="hero-description">Your next chapter starts with the right opportunity. Explore roles across job boards, find your fit, and keep your favorites close.</p>
+        <div className="hero-actions">
+          <a href="#opportunities" className="button">Explore opportunities <ArrowDown size={17} aria-hidden /></a>
+          <span className="hero-note"><Check size={16} aria-hidden /> Free to explore. Yours to discover.</span>
+        </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="space-y-2 text-sm">Location
-          <input className="field mt-2" placeholder="City, country, or region" maxLength={200}
-            value={filters.location} onChange={event => update({ location: event.target.value })} />
-        </label>
-        <label className="space-y-2 text-sm">Minimum annual salary (USD)
-          <select className="field mt-2" value={filters.min_salary} onChange={event => update({ min_salary: Number(event.target.value) })}>
-            <option value={0}>Any salary</option><option value={50000}>50,000+</option>
-            <option value={80000}>80,000+</option><option value={100000}>100,000+</option>
-          </select>
-        </label>
-        <label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={filters.salary_only}
-          onChange={event => update({ salary_only: event.target.checked })} /> Salary listed only</label>
-        <label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={filters.remote_only}
-          onChange={event => update({ remote_only: event.target.checked })} /> Remote only</label>
+      <div className="journey-card">
+        <div className="journey-top"><span className="eyebrow">MAKE YOUR NEXT MOVE</span><span className="journey-symbol" aria-hidden>↗</span></div>
+        <h2>A career that<br />feels like <em>you.</em></h2>
+        <ol className="journey-steps">
+          <li><span className="step-icon"><Search size={18} aria-hidden /></span><div><strong>Find your direction</strong><span>Search for what matters to you.</span></div><span className="step-number">01</span></li>
+          <li><span className="step-icon"><Bookmark size={18} aria-hidden /></span><div><strong>Make a shortlist</strong><span>Keep the roles that stand out.</span></div><span className="step-number">02</span></li>
+          <li><span className="step-icon"><ArrowUpRight size={18} aria-hidden /></span><div><strong>Take the next step</strong><span>Apply directly with the employer.</span></div><span className="step-number">03</span></li>
+        </ol>
+        <Link href="/shortlist" className="journey-link">Your next chapter, in one place <ArrowUpRight size={16} aria-hidden /></Link>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {["React", "Python", "Full Stack", "DevOps"].map(tag => <button key={tag} className="tag"
-          onClick={() => update({ keyword: tag })}>{tag}</button>)}
-        <button className="tag text-cyan-300" onClick={() => setFilters(initialFilters)}>Clear filters</button>
-      </div>
-      {notice && <p role="status" className="text-sm text-cyan-200">{notice}</p>}
     </section>
-    <section aria-label="Job results" aria-busy={feed.loading || feed.loadingMore}>
-      {feed.loading && <p role="status" className="py-16 text-center text-slate-400">Loading jobs…</p>}
-      {feed.error && <div role="alert" className="panel mb-5 border-rose-500/40">
-        <p>{feed.error}</p><button className="button mt-3" onClick={feed.retry}>Try again</button>
-      </div>}
-      {!feed.loading && !feed.error && feed.jobs.length === 0 && <div className="panel py-16 text-center">
-        <Briefcase aria-hidden className="mx-auto mb-4 text-indigo-400" /><h2>No matching jobs yet</h2>
-        <p className="mt-2 text-slate-400">Try a broader keyword or clear some filters.</p>
-      </div>}
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {feed.jobs.map(job => <article key={job.id} className="panel flex min-w-0 flex-col transition-colors hover:border-indigo-500">
-          <p className="mb-3 text-sm text-cyan-300">{job.company}</p>
-          <h2 className="break-words text-xl font-bold"><Link href={`/jobs/${job.id}`} className="hover:text-indigo-300">{job.title}</Link></h2>
-          <p className="mt-4 text-sm text-emerald-300">{salaryLabel(job)}</p>
-          <p className="mt-3 text-sm text-slate-400">{job.location || "Location not listed"} · {job.is_remote ? "Remote" : "Work arrangement not confirmed"}</p>
-          <Link href={`/jobs/${job.id}`} className="mt-6 flex items-center gap-1 text-sm font-bold text-indigo-300">View job <ArrowUpRight aria-hidden size={16} /></Link>
-        </article>)}
+
+    <div className="source-strip"><span>More possibilities. Fewer tabs.</span><div><span>RemoteOK</span><span>Arbeitnow</span><span>Jobicy</span></div><span className="source-note">Opportunities from multiple job boards</span></div>
+
+    <section id="opportunities" aria-label="Search and filters" className="search-panel">
+      <div className="search-heading"><h2>What does your next role look like?</h2><span><SlidersHorizontal size={14} aria-hidden /> Make it your search</span></div>
+      <div className="search-primary">
+        <label className="search-box"><Search size={21} aria-hidden /><span className="sr-only">Search jobs</span>
+          <input ref={searchInput} placeholder="Job title, skill, or company" maxLength={200} value={filters.keyword} onChange={event => update({ keyword: event.target.value })} />
+          <kbd aria-hidden>/</kbd>
+        </label>
+        <label className="search-box location-box"><MapPin size={20} aria-hidden /><span className="sr-only">Location</span>
+          <input placeholder="City, country, or region" maxLength={200} value={filters.location} onChange={event => update({ location: event.target.value })} />
+        </label>
+        <button className="button save-search-button" onClick={saveSearch} disabled={saving}><Bell size={17} aria-hidden />{saving ? "Saving…" : "Save search"}</button>
       </div>
-      <div ref={sentinel} className="h-4" />
-      {!feed.loading && feed.hasMore && !feed.error && <div className="py-5 text-center">
-        <button className="button" disabled={feed.loadingMore} onClick={() => void feed.loadMore()}>
-          {feed.loadingMore ? "Loading more…" : "Load more jobs"}
-        </button>
-      </div>}
-      {!feed.loading && !feed.hasMore && feed.jobs.length > 0 && <p className="py-6 text-center text-sm text-slate-400">You’ve reached the end of these results.</p>}
+      <div className="search-secondary">
+        <label className="salary-filter"><span>Minimum annual salary (USD)</span><select className="field" value={filters.min_salary} onChange={event => update({ min_salary: Number(event.target.value) })}>
+          <option value={0}>Any salary</option><option value={50000}>50,000+</option><option value={80000}>80,000+</option><option value={100000}>100,000+</option>
+        </select></label>
+        <label className="check-filter"><input type="checkbox" checked={filters.salary_only} onChange={event => update({ salary_only: event.target.checked })} /> Salary listed only</label>
+        <label className="check-filter"><input type="checkbox" checked={filters.remote_only} onChange={event => update({ remote_only: event.target.checked })} /> Remote only</label>
+        <button className="clear-filters" onClick={() => setFilters(initialFilters)}><X size={14} aria-hidden />Clear filters{activeCount > 0 && <span>{activeCount}</span>}</button>
+      </div>
+      <div className="quick-searches"><span>Try a keyword</span>{["React", "Python", "Full Stack", "DevOps"].map(tag => <button key={tag} className="keyword-chip" aria-pressed={filters.keyword === tag} onClick={() => update({ keyword: tag })}>{tag}<ArrowUpRight size={12} aria-hidden /></button>)}</div>
+      {notice && <p role="status" className="search-notice">{notice}</p>}
     </section>
+
+    <div className="discovery-layout">
+      <aside className="discovery-sidebar" aria-label="Career discovery">
+        <div className="sidebar-section"><p className="eyebrow">FIND YOUR FOCUS</p><h2>Explore a path</h2><div className="career-paths">{paths.map(({ label, keyword, icon: Icon }) => <button key={keyword} aria-pressed={filters.keyword === keyword} onClick={() => update({ keyword })}><Icon size={18} aria-hidden /><span>{label}</span><ArrowUpRight size={14} aria-hidden /></button>)}</div></div>
+        <div className="sidebar-note"><div className="sidebar-note-icon"><Bell size={21} aria-hidden /></div><h3>Your search.<br />On your schedule.</h3><p>Save a search and get alerts when a new role matches your interests.</p><Link href="/saved-searches">Manage your alerts <ArrowUpRight size={15} aria-hidden /></Link></div>
+        <p className="sidebar-tip"><Bookmark size={16} aria-hidden /><span>See something you like? Bookmark it to revisit in your shortlist.</span></p>
+      </aside>
+
+      <section className="results-section" aria-label="Job results" aria-busy={feed.loading || feed.loadingMore}>
+        <div className="results-heading"><div><p className="eyebrow">THE NEXT CHAPTER</p><h2>{activeCount ? "Your matching opportunities" : "Latest opportunities"}</h2><p className="results-count">{feed.loading ? "Finding your next possibility…" : `${feed.jobs.length} ${feed.jobs.length === 1 ? "role" : "roles"} loaded${feed.hasMore ? " · more as you explore" : ""}`}</p></div>
+          <div className="view-switch" role="group" aria-label="Results layout"><button aria-label="Grid view" aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid size={17} aria-hidden /></button><button aria-label="List view" aria-pressed={view === "list"} onClick={() => setView("list")}><List size={18} aria-hidden /></button></div>
+        </div>
+        {feed.loading && <div><p role="status" className="sr-only">Loading jobs…</p><div className="job-grid" aria-hidden>{Array.from({ length: 6 }, (_, i) => <div className="job-skeleton" key={i}><div /><span /><span /><span /></div>)}</div></div>}
+        {feed.error && <div role="alert" className="empty-state"><Globe2 size={28} aria-hidden /><h3>Let’s try that again</h3><p>{feed.error}</p><button className="button" onClick={feed.retry}>Try again</button></div>}
+        {!feed.loading && !feed.error && feed.jobs.length === 0 && <div className="empty-state"><BriefcaseBusiness size={30} aria-hidden /><h3>No matching jobs yet</h3><p>A new direction could be one keyword away. Try a broader search or clear some filters.</p><button className="button" onClick={() => setFilters(initialFilters)}>Explore all roles</button></div>}
+        <div className={`job-grid ${view === "list" ? "job-list" : ""}`}>{feed.jobs.map(job => <article key={job.id} className="job-card">
+          <div className="job-card-top"><span className={`company-mark mark-${job.id % 4}`} aria-hidden>{job.company.trim().slice(0, 2).toUpperCase()}</span><div className="job-company"><p>{job.company}</p><span>{sources[job.source_id.split("_")[0]] || "Job board"}</span></div><BookmarkButton job={job} /></div>
+          <h3><Link href={`/jobs/${job.id}`} prefetch={false}>{job.title}</Link></h3>
+          <p className="job-location"><MapPin size={14} aria-hidden />{job.location || "Location not listed"}</p>
+          <div className="job-tags">{job.is_remote ? <span className="remote-tag"><Globe2 size={12} aria-hidden />Remote</span> : <span>Work arrangement not confirmed</span>}{job.salary ? <span>Salary listed</span> : null}</div>
+          <div className="job-card-bottom"><p className="job-salary">{salaryLabel(job)}</p><Link href={`/jobs/${job.id}`} prefetch={false} aria-label={`View job at ${job.company}`}><span>View job</span><ArrowUpRight size={17} aria-hidden /></Link></div>
+        </article>)}</div>
+        <div ref={sentinel} className="h-4" />
+        {!feed.loading && feed.hasMore && !feed.error && <div className="load-more"><button className="tag" disabled={feed.loadingMore} onClick={() => void feed.loadMore()}>{feed.loadingMore ? "Loading more…" : "Load more jobs"}<ArrowDown size={15} aria-hidden /></button></div>}
+        {!feed.loading && !feed.hasMore && feed.jobs.length > 0 && <p className="results-end"><Check size={15} aria-hidden />You’ve reached the end of these results.</p>}
+      </section>
+    </div>
+    <section className="closing-note"><span className="eyebrow">A SMALL STEP. A NEW POSSIBILITY.</span><h2>Your next chapter is out there.</h2><p>Keep exploring. Save what speaks to you. Find work that fits your life.</p><Link href="/shortlist" className="button">Open your shortlist <ArrowUpRight size={17} aria-hidden /></Link></section>
   </main>;
 }
