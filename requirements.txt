@@ -1,1 +1,15 @@
--r Backend/requirements.txt
+# Keep this Vercel-readable root manifest aligned with Backend/requirements.txt.
+# The Python builder may inspect the repository root even when Root Directory is Backend.
+fastapi==0.139.2
+uvicorn==0.51.0
+SQLAlchemy==2.0.51
+psycopg2-binary==2.9.12
+pydantic==2.13.4
+python-dotenv==1.2.2
+requests==2.34.2
+APScheduler==3.10.4
+alembic==1.20.0
+email-validator==2.3.0
+PyJWT[crypto]==2.14.0
+redis==6.4.0
+sentry-sdk[fastapi]==2.69.1

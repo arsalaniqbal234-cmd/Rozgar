@@ -11,3 +11,12 @@ def test_vercel_and_pip_install_the_same_runtime_dependencies():
     }
     assert set(manifest["project"]["dependencies"]) == requirements
     assert manifest["tool"]["uv"]["package"] is False
+
+    repository_requirements = root.parent / "requirements.txt"
+    if repository_requirements.exists():
+        root_requirements = {
+            line.strip()
+            for line in repository_requirements.read_text().splitlines()
+            if line.strip() and not line.startswith("#")
+        }
+        assert root_requirements == requirements
