@@ -1,5 +1,9 @@
 # Rozgar — Remote Job Listings Platform
 
+New to the project? Start with the [beginner project and testing guide](docs/intern-project-guide.pdf),
+which explains the current beta, feature checks, open roadmap gaps, and interview
+questions. Its [editable source](docs/intern-project-guide.html) is kept beside the PDF.
+
 A full-stack job discovery app that aggregates listings from RemoteOK, Arbeitnow,
 and Jobicy. Search opportunities, shortlist jobs in your browser, and save searches
 for email alerts.

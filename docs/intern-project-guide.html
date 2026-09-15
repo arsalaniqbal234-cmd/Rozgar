@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rozgar | Intern project and testing guide</title>
+<style>
+  :root { color-scheme: light; --ink:#18304a; --muted:#50657b; --navy:#132840; --blue:#146ba5; --pale:#eaf3f8; --line:#d6e1e9; --green:#1c7051; --amber:#9a5c12; --red:#a63d40; }
+  @page { size:A4; margin:19mm 16mm 17mm; }
+  * { box-sizing:border-box; }
+  body { font-family:Arial,Helvetica,sans-serif; font-size:10pt; line-height:1.48; color:var(--ink); margin:0; }
+  h1,h2,h3 { line-height:1.18; margin:0 0 9px; color:var(--navy); }
+  h1 { font-size:30pt; letter-spacing:-.8px; }
+  h2 { font-size:18pt; margin-top:22px; border-bottom:2px solid var(--blue); padding-bottom:7px; break-after:avoid; }
+  h3 { font-size:12pt; margin-top:16px; break-after:avoid; }
+  p { margin:6px 0 10px; }
+  ul,ol { margin:6px 0 11px; padding-left:21px; }
+  li { margin:3px 0; }
+  a { color:var(--blue); text-decoration:none; overflow-wrap:anywhere; }
+  code { font-family:Consolas,"Courier New",monospace; font-size:8.8pt; background:#eef3f7; padding:1px 3px; border-radius:2px; overflow-wrap:anywhere; }
+  pre { font:8.7pt/1.38 Consolas,"Courier New",monospace; background:#eef3f7; border-left:3px solid var(--blue); padding:9px 11px; white-space:pre-wrap; overflow-wrap:anywhere; break-inside:avoid; }
+  table { border-collapse:collapse; width:100%; margin:9px 0 14px; font-size:9.15pt; }
+  th,td { border:1px solid var(--line); padding:6px 8px; vertical-align:top; }
+  th { background:var(--pale); text-align:left; color:var(--navy); }
+  tr { break-inside:avoid; }
+  .cover { min-height:244mm; display:flex; flex-direction:column; justify-content:center; break-after:page; }
+  .eyebrow { text-transform:uppercase; letter-spacing:2px; font-size:9pt; font-weight:bold; color:var(--blue); }
+  .cover-lede { font-size:15pt; color:var(--muted); max-width:145mm; margin:14px 0 22px; }
+  .cover-box { padding:16px 18px; background:var(--pale); border-left:5px solid var(--blue); max-width:155mm; }
+  .cover-meta { margin-top:auto; font-size:9pt; color:var(--muted); }
+  .page-break { break-before:page; }
+  .callout { padding:10px 13px; background:var(--pale); border-left:4px solid var(--blue); margin:12px 0; break-inside:avoid; }
+  .warning { background:#fff3e3; border-color:#c3822b; }
+  .good { color:var(--green); font-weight:bold; }
+  .partial { color:var(--amber); font-weight:bold; }
+  .missing { color:var(--red); font-weight:bold; }
+  .step { border-left:3px solid var(--line); padding-left:12px; margin:13px 0; break-inside:avoid; }
+  .step strong { color:var(--navy); }
+  .check { font-family:Arial,sans-serif; white-space:nowrap; }
+  .small { font-size:8.6pt; color:var(--muted); }
+  .flow { text-align:center; font-size:11pt; font-weight:bold; padding:15px 8px; background:var(--pale); border-radius:6px; margin:13px 0; }
+  .qa { border-bottom:1px solid var(--line); padding:8px 0; break-inside:avoid; }
+  .qa b { display:block; color:var(--navy); }
+  .footer-note { color:var(--muted); font-size:8pt; }
+</style>
+</head>
+<body>
+<section class="cover">
+  <div class="eyebrow">Intern project handbook</div>
+  <h1>Rozgar</h1>
+  <p class="cover-lede">Understand the job platform, test every major part, and explain your engineering decisions with confidence.</p>
+  <div class="cover-box"><b>Honest status:</b> The website and API are deployed and a three-source job-discovery beta works. The original eight-week roadmap is <b>not fully satisfied</b>: source-count targets, a running production scheduler, real notification delivery, and real-user impact evidence remain open.</div>
+  <p class="cover-meta">Prepared 15 September 2026 from repository commit <code>87fd0d8</code> and public smoke checks. This guide contains no environment-variable values or private credentials.</p>
+</section>
+
+<h2>1. What problem are we solving?</h2>
+<p>People looking for remote work must search many job boards, compare inconsistent listings, and remember which roles they liked. Rozgar collects jobs from several sources into one searchable website. A visitor can filter jobs, read details, go to the employer to apply, and keep a private shortlist in their browser. An account holder can save a search so the system can later match new jobs to that interest.</p>
+<p>The lead's program asks an intern to own the full outcome, from collection to website to deployment. Its longer-term target was a platform with at least 50 sources, autonomous data collection, and real user notifications. The current repository is a smaller but working beta. Present it that way.</p>
+<div class="flow">Job boards → Python scrapers → PostgreSQL → FastAPI → Next.js website → job seeker<br><span class="small">Optional side path: saved search → separate scheduler → Resend email, once configured</span></div>
+<h3>Words you should know</h3>
+<table><tr><th>Word</th><th>Beginner explanation</th></tr>
+<tr><td>Frontend</td><td>The website the user sees and clicks.</td></tr>
+<tr><td>Backend / API</td><td>The server that receives requests, checks rules and identity, and reads or writes data. An API endpoint is a URL with a specific action.</td></tr>
+<tr><td>Scraper</td><td>Code that fetches a source's job data and converts it into a shared format.</td></tr>
+<tr><td>Database</td><td>Durable storage. PostgreSQL holds jobs, saved searches, scrape runs, and alert-delivery records.</td></tr>
+<tr><td>Cache</td><td>A short-lived copy of a result. Redis can accelerate repeated API searches; the browser also briefly caches public results.</td></tr>
+<tr><td>Scheduler / worker</td><td>A separate running process that starts scraping and alert checks automatically. Deploying the API does not start it.</td></tr>
+<tr><td>CI / migration</td><td>CI runs checks on code pushes. A database migration changes the stored schema in a controlled way.</td></tr></table>
+
+<h2>2. What we used and why</h2>
+<table><tr><th>Part / service</th><th>Job in Rozgar</th><th>Current state</th></tr>
+<tr><td>Next.js, React, TypeScript, Tailwind CSS</td><td>Responsive pages, controls, job feed, detail pages, shortlist and saved-search UI.</td><td>Deployed on Vercel as <code>codeaza1/jobsi</code>.</td></tr>
+<tr><td>FastAPI, Python, Pydantic</td><td>HTTP endpoints, request validation, scrapers, and authenticated operations.</td><td>Deployed on Vercel as <code>codeaza1/jobs</code>.</td></tr>
+<tr><td>PostgreSQL; SQLAlchemy; Alembic</td><td>Durable records, queries, indexes, and schema upgrades.</td><td>Production database responds to readiness and job queries.</td></tr>
+<tr><td>RemoteOK, Arbeitnow, Jobicy</td><td>Three implemented source adapters.</td><td>Registered in code; current feed contains source data.</td></tr>
+<tr><td>Clerk</td><td>Sign-in, signed session tokens, and verified account email.</td><td>Development-instance settings were previously used for an authenticated test; repeat the user journey yourself.</td></tr>
+<tr><td>Redis</td><td>Optional server-side search cache; PostgreSQL remains usable if it fails.</td><td>Code implemented; current production readiness reports <code>cache: disabled</code>.</td></tr>
+<tr><td>APScheduler + Resend</td><td>Start source runs and queue/deliver matching emails.</td><td>Code implemented; no production worker or verified sender/delivery evidence. Email alerts are paused.</td></tr>
+<tr><td>Sentry</td><td>Capture and scrub unexpected errors.</td><td>Integration code exists; receipt of a real event in a Sentry account is unverified.</td></tr>
+<tr><td>GitHub Actions, Playwright, pytest, Vitest</td><td>Automated quality checks and browser tests.</td><td>Final combined-repository CI run passed.</td></tr>
+<tr><td>GitHub + Vercel</td><td>One repository; two projects with different root folders and domains.</td><td>Both public deployments were ready from the same commit.</td></tr></table>
+<p class="small">Frontend: <a href="https://jobsi-ten.vercel.app">jobsi-ten.vercel.app</a>. API: <a href="https://jobs-codeaza1.vercel.app">jobs-codeaza1.vercel.app</a>. All Git commits now go to the combined <code>Rozgar</code> repository; Vercel builds <code>Frontend</code> and <code>Backend</code> separately.</p>
+
+<h2>3. How the system works</h2>
+<ol>
+<li>A source adapter fetches jobs. <code>BaseScraper</code> spaces requests, retries temporary network/server errors, and validates a common <code>NormalizedJob</code> shape. Invalid individual jobs are skipped rather than throwing away a whole batch.</li>
+<li>The pipeline writes normalized jobs and keeps raw source information. It removes tracking parameters from application URLs and uses a URL fingerprint to prevent new copies with the same application link. Similar titles with different links may remain separate.</li>
+<li>FastAPI reads filtered jobs from PostgreSQL. The feed requests <code>summary=true</code> so large descriptions are not fetched for cards. The full description is requested for one job detail page.</li>
+<li>The browser sends search/filter parameters to <code>/jobs</code>. The API validates them, returns newest jobs first, and supports <code>before_id</code> cursor paging. The website shows loading, empty, and retry states.</li>
+<li>A shortlist is stored in that browser's <code>localStorage</code>. It needs no account, survives a reload on the same browser, and does not automatically sync to another phone or browser.</li>
+<li>For saved searches, Clerk signs the user in. The frontend passes a bearer token; the API verifies it and derives the user ID. The API obtains the user's verified primary email from Clerk. Each user can access only their own searches.</li>
+<li>If a separate scheduler and email credentials are running, new matching jobs become durable alert-delivery rows. A unique search/job pair and a stable provider idempotency key reduce duplicate messages. Email delivery is paused in the current public setup.</li>
+</ol>
+<div class="callout"><b>Design principle:</b> PostgreSQL is the source of truth. Redis is an accelerator, not the only place where jobs live. The API is the authorization boundary; browser-supplied user IDs and email addresses cannot decide ownership.</div>
+
+<h2>4. Coverage against the lead's eight-week roadmap</h2>
+<p><b>Do not say “all eight weeks are complete.”</b> There is no honest single completion percentage because the milestones differ in size. The table shows exactly what is covered.</p>
+<table><tr><th>Week</th><th>Roadmap outcome</th><th>Evidence and remaining work</th></tr>
+<tr><td>1</td><td>One end-to-end app</td><td><span class="good">Core loop achieved:</span> deployed website → API → PostgreSQL → job data.</td></tr>
+<tr><td>2</td><td>Reusable source system and 10 sources</td><td><span class="partial">Partial:</span> common scraper/normalized job shape exists; only 3 source adapters, not 10.</td></tr>
+<tr><td>3</td><td>50+ reliable sources and clean deduplication</td><td><span class="partial">Partial:</span> retries, delay, run status and URL-based deduplication exist; 50+ sources and hard-site browser automation do not.</td></tr>
+<tr><td>4</td><td>Autonomous scheduled engine on Codeaza server</td><td><span class="partial">Partial:</span> scheduler and Docker code exist; current Vercel API does not start a worker and Codeaza-server operation is unverified.</td></tr>
+<tr><td>5</td><td>Mobile job feed, filters, scrolling, pages</td><td><span class="good">Implemented and deployed:</span> responsive feed, filters, job details, load-more/scroll, light/dark mode, shortlist; live keyword search checked.</td></tr>
+<tr><td>6</td><td>Accounts, saved searches, real email/WhatsApp alerts</td><td><span class="partial">Partial:</span> Clerk-based searches and an email engine exist; public email is paused, real delivery is unverified, and WhatsApp is absent.</td></tr>
+<tr><td>7</td><td>Speed, tests, CI, monitoring, dashboard</td><td><span class="partial">Mostly implemented:</span> code for Redis caching, Sentry, admin health, tests and CI. Local warm-cache p95 measured 11.89 ms versus 39.43 ms uncached on 10,000 synthetic jobs. Production Redis and real Sentry/admin checks remain unverified.</td></tr>
+<tr><td>8</td><td>Live users, metric improvement and defense</td><td><span class="partial">Partial:</span> website/API live, clean repo, runbook, benchmark and 20-minute demo script. No demonstrated real-user adoption or production p95 data; recorded p95 is a local benchmark.</td></tr></table>
+<p class="small">The source-count numbers and real-alert requirement come from the supplied lead roadmap. The p95 figures come from <code>docs/week-8-release.md</code>; they exclude public network latency. A working beta is valuable, but it is not proof of the 50-source and real-user release.</p>
+
+<h2 class="page-break">5. How to test the public website, step by step</h2>
+<div class="callout"><b>Start here.</b> These tests need only your browser. Keep this PDF beside the website. Wait until job cards appear before typing; an automated test that filled the input before hydration did not retain the text.</div>
+<div class="step"><strong>Test 1 — The site and API are alive.</strong><br>Open <a href="https://jobsi-ten.vercel.app">the website</a>. You should see the Rozgar home page and job cards. In new tabs open <a href="https://jobs-codeaza1.vercel.app/health/live">API live</a> and <a href="https://jobs-codeaza1.vercel.app/health/ready">API ready</a>. Expected: <code>{"status":"ok"}</code> for live and <code>database:"ok"</code> for ready. <code>cache:"disabled"</code> is the current production setting, not a broken database. <span class="check">□ Pass □ Fail</span></div>
+<div class="step"><strong>Test 2 — Search and filter real jobs.</strong><br>Once cards appear, type <code>Python</code> in “Job title, skill, or company.” Expected: related results; the live request <code>/jobs?keyword=Python...</code> previously returned HTTP 200 with 9 results. Try Location, “Remote only,” “Salary listed only,” and a minimum salary. Results should narrow. A combination can reasonably show “No matching jobs yet.” Use “Clear filters” to reset. <span class="check">□ Pass □ Fail</span></div>
+<div class="step"><strong>Test 3 — Feed navigation and job details.</strong><br>Try a “Python” quick-search button or a career path. If “Load more jobs” appears, click or scroll near the end and check that more cards arrive without replacing previous cards. Open a job title. Expected: detail page and an “Apply on employer” link leading to the original source; do not submit a real application just for the test. Some result sets have fewer than 20 jobs and therefore no extra page. <span class="check">□ Pass □ Fail</span></div>
+<div class="step"><strong>Test 4 — Shortlist.</strong><br>Click the bookmark on one job card. Open “Shortlist,” reload that page, and confirm the saved job is still there. Remove it and confirm it disappears. Repeat in a private/incognito window: it will be a separate list, because the feature uses that browser's storage. <span class="check">□ Pass □ Fail</span></div>
+<div class="step"><strong>Test 5 — Interface controls.</strong><br>Toggle dark mode and reload; the chosen theme should remain. Switch grid/list view. Resize the browser to a narrow phone width, and check that text and controls fit without horizontal scrolling. Press <code>/</code> while not typing in another field; search should receive focus. <span class="check">□ Pass □ Fail</span></div>
+<div class="step"><strong>Test 6 — Failure handling without changing production.</strong><br>If the API temporarily fails, the feed should show an understandable message and “Try again.” The repository's Playwright tests simulate an HTTP 503 and verify this behavior; do not deliberately shut down the production database to test it. <span class="check">□ Automated test □ Not attempted</span></div>
+
+<h2>6. Test accounts and saved searches</h2>
+<p>Use your own test account. The current project has used Clerk development-instance settings, so do not treat this as a verified public launch. If Clerk rejects the domain, check the matching frontend/backend Clerk settings in Vercel before claiming the feature broken.</p>
+<div class="step"><strong>Test 7 — Sign in and create.</strong><br>Click “Sign in.” Complete Clerk's flow with an address you control and verify it if prompted. Return to the job feed, type a keyword such as <code>Python</code>, then click “Save search.” Expected: a success message and an item under “Saved searches.” If you click without a keyword, the page should ask you to enter one. The saved-search page currently says email alerts are paused. <span class="check">□ Pass □ Fail</span></div>
+<div class="step"><strong>Test 8 — Ownership and deletion.</strong><br>Reload “Saved searches”; the item should remain. Delete that test search; it should disappear. Sign out and open “Saved searches”: you should see a sign-in invitation, not the previous account's list. A different signed-in account should not see the first account's list. The backend's ownership test checks that another user also cannot delete it by ID. <span class="check">□ Pass □ Fail</span></div>
+<div class="step"><strong>Test 9 — Duplicate search.</strong><br>Save the same keyword and same filters twice while signed in. The backend reuses the existing active record. Change a filter and save again; that is a different search. A user can keep at most 20 active searches. <span class="check">□ Pass □ Fail</span></div>
+<div class="callout warning"><b>Do not claim a received alert from these tests.</b> Saving a search works independently of email. Public email delivery needs a verified sender, Resend key, backend Clerk secret, and a separate scheduler. WhatsApp delivery is not implemented.</div>
+
+<h2>7. Test the API without coding</h2>
+<p>Open <a href="https://jobs-codeaza1.vercel.app/docs">FastAPI's interactive docs</a>. A blue <code>GET</code> reads data; a <code>POST</code> starts or creates something; a <code>DELETE</code> removes/deactivates it. Expand an endpoint, select “Try it out,” enter parameters, then “Execute.”</p>
+<table><tr><th>Endpoint to inspect</th><th>What to try and what you should see</th></tr>
+<tr><td><code>GET /jobs</code></td><td>Use <code>keyword=Python</code>, <code>limit=5</code>, <code>summary=true</code>. Expect HTTP 200 and a JSON list. For summary results, description is omitted. Try <code>remote_only=true</code>; a valid but empty list is possible.</td></tr>
+<tr><td><code>GET /jobs/{job_id}</code></td><td>Copy an ID from a result. Expect one job with an application URL. An invalid ID should return 404.</td></tr>
+<tr><td><code>GET /health/live</code> and <code>/health/ready</code></td><td>Expect 200. Ready checks the database; a 503 means that dependency failed.</td></tr>
+<tr><td><code>GET /saved-searches/</code> or <code>/health</code> while signed out</td><td>These are protected. Without a valid bearer token, expect 401. Do not paste your login token into a shared screenshot or PDF.</td></tr>
+<tr><td><code>POST /scrape/{source}</code></td><td>Requires a private <code>x-api-key</code> and starts a real external fetch. Test it only in a local/test environment you control, with permission to call that source; do not treat it as a casual public button.</td></tr></table>
+<p class="small">HTTP 200 means the request worked. HTTP 401 means unauthenticated; 403 means signed in but not allowed; 404 means item not found; 422 means invalid input; 503 means a required dependency is unavailable.</p>
+
+<h2 class="page-break">8. Test locally and run automated checks</h2>
+<p><b>Why test locally?</b> It lets you inspect the backend, scheduler, Redis, and migrations without changing the live site. Start with automated checks if PostgreSQL/Redis are already available. Commands below use Windows PowerShell, as in the repository README.</p>
+<ol>
+<li>Open a terminal at the <code>Rozgar</code> repository root. Run <code>git status</code>. Do not edit or share <code>Backend/.env</code>; it contains private settings. Use <code>.env.example</code> to learn variable names.</li>
+<li>For a new environment, install Python 3.11, Node.js 24 and PostgreSQL. Redis is optional for normal reads but needed for the cache test. The example local database uses port 55432; edit your local environment only if your services use other ports.</li>
+<li>Open one terminal for the API and another for the website:</li>
+</ol>
+<pre>cd Backend
+python -m venv venv                # Only if venv does not already exist
+.\venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\venv\Scripts\python.exe -m alembic upgrade head
+.\venv\Scripts\python.exe -m uvicorn app.main:app --reload
+
+# In another terminal, from the Rozgar root:
+cd Frontend
+npm ci
+npm run dev</pre>
+<p>Before starting, keep <code>Backend/.env</code> and <code>Frontend/.env.local</code> aligned: <code>DATABASE_URL</code> points to your PostgreSQL; <code>NEXT_PUBLIC_API_URL=http://127.0.0.1:8000</code>; local CORS/Clerk allowed origins include <code>http://localhost:3000</code>. Open <a href="http://127.0.0.1:8000/docs">local API docs</a> and <a href="http://localhost:3000">local website</a>. If a port is already in use, stop the old process or choose a consistent new port.</p>
+<h3>Automated quality checks</h3>
+<pre># Backend terminal, with local test PostgreSQL/Redis running:
+.\venv\Scripts\python.exe -m ruff check app database.py alembic tests scripts
+.\venv\Scripts\python.exe -m pytest -q
+.\venv\Scripts\python.exe scripts/benchmark_search.py
+
+# Frontend terminal:
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm run test:e2e</pre>
+<p>Playwright's browser test uses a production build on local port 3100 and mocked job responses; install Chromium with <code>npx playwright install chromium</code> if prompted. These tests cover UI behavior, not proof that a real external scraper or email provider works. GitHub Actions performs the broader CI checks automatically after a push.</p>
+<h3>Optional operator tests, after you have a local test database</h3>
+<table><tr><th>Part</th><th>Safe test and expected result</th></tr>
+<tr><td>Scrapers and run tracking</td><td>With your private <code>SCRAPE_SECRET_KEY</code>, invoke one local <code>POST /scrape/arbeitnow</code> in API docs. Expect <code>status: ok</code> with added/skipped counts, or a recorded <code>failed</code> result if the external source changed. Repeat: identical application URLs should be skipped. Do not publish the key.</td></tr>
+<tr><td>Scheduler</td><td>In a third <code>Backend</code> terminal, run <code>.\venv\Scripts\python.exe -m app.run_scheduler</code>. It starts registered sources and checks alerts every minute. Stop with Ctrl+C. Use a disposable/test database if you are investigating new jobs or alert matching.</td></tr>
+<tr><td>Redis cache</td><td>Set a local <code>REDIS_URL</code> to a running Redis. Make the same <code>GET /jobs</code> request twice: expect <code>X-Cache: MISS</code> then <code>HIT</code>. Without Redis or while it fails, expect <code>BYPASS</code> and still get database jobs.</td></tr>
+<tr><td>Admin health</td><td>Set your Clerk user ID in local <code>ADMIN_USER_IDS</code> and sign in. Inspect <code>/health</code> with a valid token. It reports each source's latest run, total jobs, alert counts and monitoring flags. A non-admin must be refused.</td></tr>
+<tr><td>Real email and Sentry</td><td>Only after configuring your own test Resend sender, Clerk settings, worker, and Sentry accounts should you run controlled end-to-end delivery and event-receipt tests. Check one matching email, no duplicate after a repeated run, and scrubbed Sentry data. These are external acceptance gates, not yet documented as passed.</td></tr></table>
+
+<h2>9. Reading results and fixing the common first problems</h2>
+<table><tr><th>What you see</th><th>First check</th></tr>
+<tr><td>Website shows cards forever loading or retry message</td><td>Open API <code>/health/ready</code>. Check the frontend's <code>NEXT_PUBLIC_API_URL</code> and the backend's CORS origins; rebuild the frontend after changing a public build variable.</td></tr>
+<tr><td>API ready returns 503</td><td>Check <code>DATABASE_URL</code>, PostgreSQL reachability, and whether <code>alembic upgrade head</code> has run. Avoid printing the database URL in a screenshot.</td></tr>
+<tr><td>Search returns no jobs</td><td>Clear filters and search a broader word. An empty result can be correct. If all searches are empty, inspect database job count and source run history.</td></tr>
+<tr><td>Saved-search button fails</td><td>Check sign-in, a verified email, matching Clerk frontend/backend instance keys and authorized origins. A keyword is mandatory.</td></tr>
+<tr><td>Shortlist vanishes in another browser</td><td>This is expected: shortlist lives in local browser storage. Use the same browser/profile for the persistence test.</td></tr>
+<tr><td>Saved search exists but no email arrives</td><td>Current public delivery is paused. Resend credentials, verified sender, active scheduler and a newly matching job are needed.</td></tr>
+<tr><td>Vercel build fails</td><td>Inspect the failing project's build log. The frontend root is <code>Frontend</code>, backend root is <code>Backend</code>; the backend also has a Vercel-readable root Python requirements file. Use the previous successful deployment if a bad production release needs rollback.</td></tr></table>
+
+<h2>10. A 20-minute demo you can give your lead</h2>
+<ol><li><b>0–3 minutes:</b> Explain the user problem and honestly say “three-source beta.” Show the live URLs.</li>
+<li><b>3–8 minutes:</b> Search <code>Python</code>, filter, open a job, shortlist it, reload, switch dark mode and narrow the browser width.</li>
+<li><b>8–11 minutes:</b> Sign in, save a keyword search, show its persistence and delete it. Explain why email is paused.</li>
+<li><b>11–15 minutes:</b> Point to scraper → normalized record → URL deduplication → PostgreSQL → API. Show an API JSON result and readiness response.</li>
+<li><b>15–18 minutes:</b> Show the GitHub CI result and local p95 benchmark. Say clearly that these numbers are synthetic local measurements, not production user latency.</li>
+<li><b>18–20 minutes:</b> Name the gaps and propose next evidence: 10 and then 50 approved source adapters, an always-on scheduler, one real verified alert and a week of production p95/usage data.</li></ol>
+
+<h2 class="page-break">11. Questions your lead may ask in an interview</h2>
+<p>Practice answering in your own words. The short answers below are examples to understand, not lines to memorize. If you cannot explain an answer, open the linked source file and trace the flow.</p>
+<div class="qa"><b>1. What is Rozgar's goal?</b> Bring remote jobs from several boards into one searchable feed, let a visitor save roles, and prepare account-based notifications for new matches.</div>
+<div class="qa"><b>2. Is the roadmap complete?</b> No. The live three-source beta and CI are real, but 10/50 source milestones, autonomous production scheduling, real email/WhatsApp delivery, and real-user metric evidence are not complete.</div>
+<div class="qa"><b>3. Why one GitHub repo but two Vercel projects?</b> The apps share a product and release commit but use different runtimes. Vercel builds <code>Frontend</code> with Next.js and <code>Backend</code> with Python, retaining separate domains and environment settings.</div>
+<div class="qa"><b>4. What happens when a user types a keyword?</b> React updates filters; the website sends a debounced <code>/jobs</code> request; FastAPI validates parameters; SQLAlchemy filters PostgreSQL jobs; the response renders cards.</div>
+<div class="qa"><b>5. What does <code>summary=true</code> improve?</b> Feed cards omit large descriptions from both the SQL column fetch and returned JSON. The detail page fetches the full job when needed.</div>
+<div class="qa"><b>6. What is cursor paging?</b> The next request passes the last displayed job ID as <code>before_id</code> and asks for older IDs, instead of repeatedly reading farther with a large offset.</div>
+<div class="qa"><b>7. How are duplicates detected?</b> We normalize the application URL, remove common tracking parameters, hash it, and prevent new rows with the same fingerprint. We do not promise perfect semantic deduplication across different links.</div>
+<div class="qa"><b>8. Why keep raw source data?</b> It helps investigate parsing mistakes and source changes without losing the original information behind a normalized job.</div>
+<div class="qa"><b>9. How does a scraper handle temporary failure?</b> It spaces requests, retries network errors, 429, and server errors with increasing delay, and records a failed source run if the job pipeline cannot finish.</div>
+<div class="qa"><b>10. Why use PostgreSQL and Redis?</b> PostgreSQL keeps durable truth. Redis can hold short-lived search responses. If Redis is absent or unavailable, the API bypasses it and reads PostgreSQL.</div>
+<div class="qa"><b>11. What does <code>/health/live</code> prove? What does ready prove?</b> Live proves the API process responds. Ready also checks a database query and reports cache status. Neither proves that all scrapers or emails are healthy.</div>
+<div class="qa"><b>12. How do saved searches stay private?</b> The API verifies Clerk's bearer token, derives the user ID itself, obtains the verified email from Clerk, and filters reads/deletes by owner. It does not trust a user ID typed by the browser.</div>
+<div class="qa"><b>13. Shortlist versus saved search?</b> Shortlist is a browser-local list of individual jobs, available without sign-in. Saved search is a server-side, account-owned query with filters, intended for matching future jobs.</div>
+<div class="qa"><b>14. How do we avoid sending the same job alert twice?</b> The database has one delivery record per search/job pair. Retry sends use a stable Resend idempotency key. Ambiguous old attempts move to review rather than blindly repeating.</div>
+<div class="qa"><b>15. Why is the scheduler a separate process?</b> HTTP functions answer requests and may stop between them. Continuous periodic scraping/alert checks require a worker kept running separately; the Vercel API deployment alone is not that worker.</div>
+<div class="qa"><b>16. What is the measured performance improvement?</b> In the recorded local 10,000-synthetic-job test, search p95 fell from 39.43 ms uncached to 11.89 ms cached, about 69.8% lower. Production Redis is currently disabled, so do not apply that claim to live users.</div>
+<div class="qa"><b>17. What do CI and browser tests cover?</b> CI runs lint, types, backend tests, migration/benchmark checks, build and desktop/mobile browser tests. Browser tests use mocked jobs for repeatability; live source/provider tests remain separate.</div>
+<div class="qa"><b>18. What would you do when production fails?</b> Find the failing layer with live/ready, API response and Vercel logs; preserve database state; repair and test, or promote the previous successful project deployment. Do not delete alert-delivery history to roll back code.</div>
+<div class="qa"><b>19. What would you improve next?</b> Add approved sources toward 10 then 50, operate one scheduler, finish verified test email and Sentry gates, configure production Redis, and measure one week of real search latency and user activity.</div>
+<div class="qa"><b>20. What part did you personally build and verify?</b> Be specific and truthful. Separate work you wrote or changed, work you reviewed, automated checks that passed, and external features you did not verify. A candid answer is stronger than claiming every subsystem is finished.</div>
+<div class="callout"><b>Follow-up preparation:</b> Your lead may ask you to find an endpoint in <code>Backend/app/routers</code>, show the PostgreSQL model in <code>Backend/app/models.py</code>, explain a frontend state change in <code>Frontend/app/page.tsx</code>, or trace an alert from <code>Backend/app/scheduler.py</code> through <code>Backend/app/alerts.py</code>. Rehearse those four file paths.</div>
+
+<h2>12. Evidence to collect before saying “finished”</h2>
+<table><tr><th>Evidence</th><th>Your record</th></tr>
+<tr><td>Public website and API ready; a live keyword, detail, shortlist, sign-in and saved-search journey</td><td>Date, browser, result, screenshot with no token or credentials: __________________________</td></tr>
+<tr><td>Source coverage</td><td>Registered and healthy sources: ____ / 10 first target; ____ / 50 final target</td></tr>
+<tr><td>Autonomous worker</td><td>Where it runs, uptime, last three source runs: __________________________</td></tr>
+<tr><td>One real notification, no duplicate after repeated scrape</td><td>Test account, provider message ID, delivery row, date: __________________________</td></tr>
+<tr><td>Real monitoring and performance</td><td>Sentry scrubbed event IDs; production p95 sample count/date range: __________________________</td></tr>
+<tr><td>Real users</td><td>Approved user count and outcome metric, with dates: __________________________</td></tr></table>
+<p class="footer-note">Repository references: <code>README.md</code>, <code>docs/architecture.md</code>, <code>docs/deployment.md</code>, <code>docs/week-7-plan.md</code>, <code>docs/week-8-release.md</code>, and the supplied lead roadmap. Public checks on 15 September 2026 returned HTTP 200 for the website, API live, API ready and a job summary. Re-check live status when you present; hosted services can change after this guide was written.</p>
+</body>
+</html>
