@@ -47,13 +47,16 @@ design uses system fonts and CSS, with no external illustration/font downloads.
 
 ## Production release, September 15, 2026
 
-The combined repository, `arsalaniqbal234-cmd/Rozgar`, contains the complete
-implementation through commit `727b164`. Its GitHub CI run passed. The existing Vercel
-projects are still connected to `jobfrontend` and `jobbackend`, so the matching
-source changes were published to those repositories as separate release commits.
-A push to `Rozgar` alone does not rebuild the existing domains.
+The combined repository, `arsalaniqbal234-cmd/Rozgar`, contains both apps. The
+original release was mirrored to `jobfrontend` and `jobbackend` while the existing
+Vercel projects still tracked those repositories. Those old commits and the
+successful live checks below record that initial release. Both existing Vercel
+projects have since been reconnected to `Rozgar` on `main`: `codeaza1/jobsi` uses
+the `Frontend` Root Directory and `codeaza1/jobs` uses `Backend`. Their project
+environment variables and domains were preserved. See the
+[single-repository deployment guide](deployment.md) for future releases.
 
-| Public domain | Vercel project | Published repository head | Live result |
+| Public domain | Vercel project | Previous release head | Initial live result |
 | --- | --- | --- | --- |
 | https://jobsi-ten.vercel.app | `codeaza1/jobsi` | `jobfrontend` `872eda9` | Real jobs loaded; desktop and mobile browser checks passed |
 | https://jobs-codeaza1.vercel.app | `codeaza1/jobs` | `jobbackend` `728d3a1` | Liveness and readiness returned 200; summary listing returned 200 |
@@ -86,6 +89,6 @@ not started by the Vercel API deployment. Backend readiness reported `cache: dis
 because Redis was not configured; the public frontend still uses the bounded
 30-second cache and smaller summary responses described above.
 
-Previous Vercel deployments remain available for rollback. Connecting both
-projects directly to `Rozgar` with `Frontend` and `Backend` root directories would
-remove the need to mirror future releases into the old repositories.
+Previous Vercel deployments and the former GitHub repositories remain available
+for rollback. Future code commits need only be pushed to `Rozgar`; the Vercel
+projects now build from their respective directories in that single repository.

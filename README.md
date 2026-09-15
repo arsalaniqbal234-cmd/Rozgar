@@ -151,6 +151,10 @@ Use [Backend/.env.example](Backend/.env.example) and
 
 ## Production hardening
 
+The existing frontend and API Vercel projects now deploy from this one GitHub
+repository. See the [single-repository deployment guide](docs/deployment.md) for
+their root directories, normal releases, live checks, and rollback.
+
 The latest [job discovery refresh](docs/ui-refresh.md) preserves existing features,
 adds a personal shortlist, and documents performance measurements and deployment
 requirements for the combined repository.

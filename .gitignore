@@ -20,3 +20,6 @@
 # The Python backend does not use Node packages.
 /Backend/package.json
 /Backend/package-lock.json
+
+# Reversible local backups of the retired standalone Git repositories.
+/.git-archives/
