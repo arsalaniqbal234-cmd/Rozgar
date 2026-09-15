@@ -5,7 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Navigation from "./components/navigation";
 import "./globals.css";
 
-export const metadata: Metadata = { title: "Rozgar — Find your next role", description: "Search jobs and save alerts for new matching opportunities." };
+export const metadata: Metadata = { title: "Rozgar — Find your next role", description: "Search jobs, save searches, and shortlist opportunities." };
 
 const themeScript = `(function(){try{var t=localStorage.getItem('rozgar-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme='dark'}})()`;
 

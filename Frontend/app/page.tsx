@@ -5,6 +5,7 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Bell, Bookmark, BriefcaseBusiness, Check, Code2, Compass, Globe2, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { api, salaryLabel } from "../lib/api";
+import { emailAlertsEnabled } from "../lib/features";
 import { Filters, initialFilters, useJobs } from "../lib/use-jobs";
 import BookmarkButton from "./components/bookmark-button";
 
@@ -63,7 +64,7 @@ export default function Home() {
         body: JSON.stringify({ keywords: filters.keyword, location: filters.location || null,
           min_salary: filters.min_salary || null, filters: { salary_only: filters.salary_only,
             remote_only: filters.remote_only, salary_currency: "USD", salary_period: "annual" } }) });
-      setNotice("Search saved. Manage your alerts in Saved searches.");
+      setNotice(emailAlertsEnabled ? "Search saved. Manage your alerts in Saved searches." : "Search saved. Email alerts are paused for now. Manage your searches in Saved searches.");
     } catch (error) { setNotice((error as Error).message); }
     finally { setSaving(false); }
   }
@@ -120,7 +121,7 @@ export default function Home() {
     <div className="discovery-layout">
       <aside className="discovery-sidebar" aria-label="Career discovery">
         <div className="sidebar-section"><p className="eyebrow">FIND YOUR FOCUS</p><h2>Explore a path</h2><div className="career-paths">{paths.map(({ label, keyword, icon: Icon }) => <button key={keyword} aria-pressed={filters.keyword === keyword} onClick={() => update({ keyword })}><Icon size={18} aria-hidden /><span>{label}</span><ArrowUpRight size={14} aria-hidden /></button>)}</div></div>
-        <div className="sidebar-note"><div className="sidebar-note-icon"><Bell size={21} aria-hidden /></div><h3>Your search.<br />On your schedule.</h3><p>Save a search and get alerts when a new role matches your interests.</p><Link href="/saved-searches">Manage your alerts <ArrowUpRight size={15} aria-hidden /></Link></div>
+        <div className="sidebar-note"><div className="sidebar-note-icon"><Bell size={21} aria-hidden /></div><h3>Your search.<br />On your schedule.</h3><p>{emailAlertsEnabled ? "Save a search and get alerts when a new role matches your interests." : "Save the searches that matter to you. Email alerts are paused for now."}</p><Link href="/saved-searches">{emailAlertsEnabled ? "Manage your alerts" : "Manage your searches"} <ArrowUpRight size={15} aria-hidden /></Link></div>
         <p className="sidebar-tip"><Bookmark size={16} aria-hidden /><span>See something you like? Bookmark it to revisit in your shortlist.</span></p>
       </aside>
 

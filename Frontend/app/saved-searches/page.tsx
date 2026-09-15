@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api, SavedSearch } from "../../lib/api";
+import { emailAlertsEnabled } from "../../lib/features";
 
 export default function SavedSearchesPage() {
   const { isSignedIn, getToken, userId } = useAuth();
@@ -38,7 +39,7 @@ export default function SavedSearchesPage() {
   return <main id="main-content" className="page-shell detail-shell">
     <header className="page-header mb-8"><p className="eyebrow mb-3"><Bell size={15} aria-hidden />GOOD OPPORTUNITIES, LESS SEARCHING</p>
     <h1>Saved searches</h1>
-    <p className="my-5 text-slate-400">Let your next opportunity come to you. Alerts use your verified account email. Delete a search to stop its alerts.</p>
+    <p className="my-5 text-slate-400">{emailAlertsEnabled ? "Let your next opportunity come to you. Alerts use your verified account email. Delete a search to stop its alerts." : "Keep the searches you want to revisit. Email alerts are paused for now; deleting a search removes it from this list."}</p>
     <Link className="back-link" href="/">Find a new opportunity <ArrowUpRight size={15} aria-hidden /></Link></header>
     <Show when="signed-out"><SignInButton mode="modal"><button className="button">Sign in to view your searches</button></SignInButton></Show>
     <Show when="signed-in">
@@ -51,7 +52,7 @@ export default function SavedSearchesPage() {
             {item.min_salary ? ` · USD ${item.min_salary.toLocaleString()}+ annually` : ""}
             {item.filters?.remote_only ? " · Remote only" : ""}
             {item.filters?.salary_only ? " · Salary listed" : ""}</p>
-          <p className="mt-2 text-xs text-slate-500">{item.last_notified_at ? "Last alert: " + new Date(item.last_notified_at).toLocaleString() : "Waiting for new matches"}</p>
+          <p className="mt-2 text-xs text-slate-500">{item.last_notified_at ? "Last alert: " + new Date(item.last_notified_at).toLocaleString() : emailAlertsEnabled ? "Waiting for new matches" : "Email alerts paused"}</p>
         </div>
         <button className="tag text-rose-300" disabled={busy === item.id} onClick={() => void remove(item.id)}
           aria-label={`Delete search ${item.keywords}`}>{busy === item.id ? "Deleting…" : "Delete"}</button>
