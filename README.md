@@ -105,6 +105,8 @@ For a new checkout, copy `Frontend/.env.example` to `Frontend/.env.local`. Set
 `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000` and the Clerk publishable/secret keys from
 your Clerk application. Keep private keys in environment files or hosting settings,
 never in Git.
+Keep `NEXT_PUBLIC_EMAIL_ALERTS_ENABLED=false` until the backend email sender and
+separate scheduler are running; only then set it to `true` and rebuild the frontend.
 
 ```powershell
 npm run dev
@@ -139,6 +141,7 @@ Use [Backend/.env.example](Backend/.env.example) and
 | `CRON_SECRET` | Bearer secret for `/cron/scrape-all` |
 | `NEXT_PUBLIC_API_URL` | Backend URL embedded into the frontend build |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Frontend Clerk application key |
+| `NEXT_PUBLIC_EMAIL_ALERTS_ENABLED` | Show active email-alert wording only when delivery and scheduling are running |
 | `CLERK_SECRET_KEY` | Clerk secret; backend uses it to verify saved-search email ownership |
 | `CLERK_ISSUER`, `CLERK_AUTHORIZED_PARTIES` | Backend session issuer and permitted frontend origins |
 | `CORS_ORIGINS`, `FRONTEND_URL` | Browser API access origins and frontend URL used in alert links |

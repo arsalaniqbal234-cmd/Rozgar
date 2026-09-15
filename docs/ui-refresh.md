@@ -48,14 +48,14 @@ design uses system fonts and CSS, with no external illustration/font downloads.
 ## Production release, September 15, 2026
 
 The combined repository, `arsalaniqbal234-cmd/Rozgar`, contains the complete
-implementation at commit `5d148f9`. Its GitHub CI run passed. The existing Vercel
+implementation through commit `727b164`. Its GitHub CI run passed. The existing Vercel
 projects are still connected to `jobfrontend` and `jobbackend`, so the matching
 source changes were published to those repositories as separate release commits.
 A push to `Rozgar` alone does not rebuild the existing domains.
 
 | Public domain | Vercel project | Published repository head | Live result |
 | --- | --- | --- | --- |
-| https://jobsi-ten.vercel.app | `codeaza1/jobsi` | `jobfrontend` `2fd5206` | Real jobs loaded; desktop and mobile browser checks passed |
+| https://jobsi-ten.vercel.app | `codeaza1/jobsi` | `jobfrontend` `872eda9` | Real jobs loaded; desktop and mobile browser checks passed |
 | https://jobs-codeaza1.vercel.app | `codeaza1/jobs` | `jobbackend` `728d3a1` | Liveness and readiness returned 200; summary listing returned 200 |
 
 The production frontend API setting had been entered as a Markdown link, which
@@ -78,8 +78,11 @@ These are development-instance Clerk keys (`pk_test_`/`sk_test_`). A production
 Clerk instance and its matching keys must be provided before relying on this as
 a public authentication launch. No production Resend API key or verified sender
 was available, so creating a saved search works but email alert delivery is
-disabled and was not tested. The scheduler is a separate process and is not
-started by the Vercel API deployment. Backend readiness reported `cache: disabled`
+disabled and was not tested. The public site now tells visitors that email alerts
+are paused while keeping saved searches available. Set frontend
+`NEXT_PUBLIC_EMAIL_ALERTS_ENABLED=true` and rebuild only after `RESEND_API_KEY`, a
+verified `SENDER_EMAIL`, and the separate scheduler are active. The scheduler is
+not started by the Vercel API deployment. Backend readiness reported `cache: disabled`
 because Redis was not configured; the public frontend still uses the bounded
 30-second cache and smaller summary responses described above.
 
