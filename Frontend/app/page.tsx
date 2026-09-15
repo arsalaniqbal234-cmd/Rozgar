@@ -16,6 +16,8 @@ const paths = [
   { label: "Marketing", keyword: "marketing", icon: Globe2 },
 ];
 const sources: Record<string, string> = { remoteok: "RemoteOK", arbeitnow: "Arbeitnow", jobicy: "Jobicy" };
+// Browser form-fill extensions can add attributes such as fdprocessedid before hydration.
+// Only search controls suppress these benign attribute mismatches; the panel stays server-rendered.
 
 export default function Home() {
   const { user } = useUser();
@@ -98,20 +100,20 @@ export default function Home() {
       <div className="search-heading"><h2>What does your next role look like?</h2><span><SlidersHorizontal size={14} aria-hidden /> Make it your search</span></div>
       <div className="search-primary">
         <label className="search-box"><Search size={21} aria-hidden /><span className="sr-only">Search jobs</span>
-          <input ref={searchInput} placeholder="Job title, skill, or company" maxLength={200} value={filters.keyword} onChange={event => update({ keyword: event.target.value })} />
+          <input suppressHydrationWarning ref={searchInput} placeholder="Job title, skill, or company" maxLength={200} value={filters.keyword} onChange={event => update({ keyword: event.target.value })} />
           <kbd aria-hidden>/</kbd>
         </label>
         <label className="search-box location-box"><MapPin size={20} aria-hidden /><span className="sr-only">Location</span>
-          <input placeholder="City, country, or region" maxLength={200} value={filters.location} onChange={event => update({ location: event.target.value })} />
+          <input suppressHydrationWarning placeholder="City, country, or region" maxLength={200} value={filters.location} onChange={event => update({ location: event.target.value })} />
         </label>
         <button className="button save-search-button" onClick={saveSearch} disabled={saving}><Bell size={17} aria-hidden />{saving ? "Saving…" : "Save search"}</button>
       </div>
       <div className="search-secondary">
-        <label className="salary-filter"><span>Minimum annual salary (USD)</span><select className="field" value={filters.min_salary} onChange={event => update({ min_salary: Number(event.target.value) })}>
+        <label className="salary-filter"><span>Minimum annual salary (USD)</span><select suppressHydrationWarning className="field" value={filters.min_salary} onChange={event => update({ min_salary: Number(event.target.value) })}>
           <option value={0}>Any salary</option><option value={50000}>50,000+</option><option value={80000}>80,000+</option><option value={100000}>100,000+</option>
         </select></label>
-        <label className="check-filter"><input type="checkbox" checked={filters.salary_only} onChange={event => update({ salary_only: event.target.checked })} /> Salary listed only</label>
-        <label className="check-filter"><input type="checkbox" checked={filters.remote_only} onChange={event => update({ remote_only: event.target.checked })} /> Remote only</label>
+        <label className="check-filter"><input suppressHydrationWarning type="checkbox" checked={filters.salary_only} onChange={event => update({ salary_only: event.target.checked })} /> Salary listed only</label>
+        <label className="check-filter"><input suppressHydrationWarning type="checkbox" checked={filters.remote_only} onChange={event => update({ remote_only: event.target.checked })} /> Remote only</label>
         <button className="clear-filters" onClick={() => setFilters(initialFilters)}><X size={14} aria-hidden />Clear filters{activeCount > 0 && <span>{activeCount}</span>}</button>
       </div>
       <div className="quick-searches"><span>Try a keyword</span>{["React", "Python", "Full Stack", "DevOps"].map(tag => <button key={tag} className="keyword-chip" aria-pressed={filters.keyword === tag} onClick={() => update({ keyword: tag })}>{tag}<ArrowUpRight size={12} aria-hidden /></button>)}</div>
