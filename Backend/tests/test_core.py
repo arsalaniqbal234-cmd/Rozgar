@@ -15,6 +15,9 @@ from app.schemas import SavedSearchCreate
 from app.scrapers.arbeitnow import ArbeitnowScraper
 from app.scrapers.remoteok import RemoteOKScraper
 from app.scrapers.base import BaseScraper, NormalizedJob
+from app.scrapers.greenhouse import GreenhouseScraper
+from app.scrapers.ashby import AshbyScraper
+from app.scrapers import AVAILABLE_SCRAPERS
 from database import engine
 
 
@@ -52,6 +55,53 @@ def test_saved_search_requires_authentication(client):
     assert client.post("/saved-searches/", json={"keywords": "python"}).status_code == 401
     assert client.delete("/saved-searches/1").status_code == 401
     assert client.get("/health").status_code == 401
+
+
+def test_vercel_cron_requires_secret_and_runs_one_source(client, monkeypatch):
+    monkeypatch.setenv("CRON_SECRET", "test-cron-secret")
+    calls = []
+    monkeypatch.setattr("app.routers.jobs.scrape_source", lambda source: calls.append(source) or {"status": "ok"})
+    monkeypatch.setattr("app.routers.jobs.run_alert_engine", lambda db: {"status": "disabled"})
+    assert client.get("/cron/scrape/arbeitnow").status_code == 401
+    assert client.get("/cron/alerts", headers={"Authorization": "Bearer wrong"}).status_code == 401
+    assert calls == []
+    headers = {"Authorization": "Bearer test-cron-secret"}
+    assert client.get("/cron/scrape/arbeitnow", headers=headers).json() == {"status": "ok"}
+    assert calls == ["arbeitnow"]
+    assert client.get("/cron/scrape/unknown", headers=headers).status_code == 404
+    assert client.get("/cron/alerts", headers=headers).json() == {"status": "disabled"}
+
+
+def test_greenhouse_registered_sites_normalize_only_remote_jobs():
+    assert len(AVAILABLE_SCRAPERS) == 52
+    scraper = GreenhouseScraper("example", "Example Company")
+    jobs = scraper.parse({"jobs": [
+        {"id": 1, "title": "Remote Python Engineer", "absolute_url": "https://example.com/1",
+         "location": {"name": "Remote - Worldwide"}, "content": "<p>Build APIs</p>"},
+        {"id": 2, "title": "Office Manager", "absolute_url": "https://example.com/2",
+         "location": {"name": "San Francisco"}},
+        {"id": 3, "title": "", "absolute_url": "https://example.com/3",
+         "location": {"name": "Remote"}},
+    ]})
+    assert len(jobs) == 1
+    assert jobs[0].source_id == "greenhouse_example_1"
+    assert jobs[0].company == "Example Company"
+    assert jobs[0].is_remote is True
+
+
+def test_ashby_remote_jobs_have_direct_apply_url_and_salary():
+    scraper = AshbyScraper("example", "Example Company")
+    jobs = scraper.parse({"jobs": [
+        {"title": "Python Engineer", "isRemote": True, "isListed": True,
+         "applyUrl": "https://jobs.ashbyhq.com/example/apply/1", "location": "Worldwide",
+         "compensation": {"summaryComponents": [{"compensationType": "Salary",
+                           "currencyCode": "USD", "interval": "1 YEAR", "minValue": 90000}]}},
+        {"title": "Office role", "isRemote": False, "isListed": True,
+         "applyUrl": "https://jobs.ashbyhq.com/example/apply/2"},
+    ]})
+    assert len(jobs) == 1
+    assert jobs[0].salary == 90000
+    assert str(jobs[0].url).startswith("https://jobs.ashbyhq.com/example/apply/1")
 
 
 def test_verified_jwt_and_rejected_claims(monkeypatch):

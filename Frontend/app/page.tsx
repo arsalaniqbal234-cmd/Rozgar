@@ -15,7 +15,7 @@ const paths = [
   { label: "Data & analytics", keyword: "data", icon: Sparkles },
   { label: "Marketing", keyword: "marketing", icon: Globe2 },
 ];
-const sources: Record<string, string> = { remoteok: "RemoteOK", arbeitnow: "Arbeitnow", jobicy: "Jobicy" };
+const sources: Record<string, string> = { remoteok: "RemoteOK", arbeitnow: "Arbeitnow", jobicy: "Jobicy", greenhouse: "Company careers", ashby: "Company careers" };
 // Browser form-fill extensions can add attributes such as fdprocessedid before hydration.
 // Only search controls suppress these benign attribute mismatches; the panel stays server-rendered.
 

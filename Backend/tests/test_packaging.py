@@ -1,5 +1,6 @@
 from pathlib import Path
 import tomllib
+import json
 
 
 def test_vercel_and_pip_install_the_same_runtime_dependencies():
@@ -20,3 +21,15 @@ def test_vercel_and_pip_install_the_same_runtime_dependencies():
             if line.strip() and not line.startswith("#")
         }
         assert root_requirements == requirements
+
+
+def test_vercel_daily_crons_cover_every_registered_source():
+    from app.scrapers import AVAILABLE_SCRAPERS
+
+    root = Path(__file__).resolve().parents[1]
+    config = json.loads((root / "vercel.json").read_text())
+    paths = [cron["path"] for cron in config["crons"]]
+    assert len(paths) == len(set(paths))
+    assert set(paths) == {f"/cron/scrape/{source}" for source in AVAILABLE_SCRAPERS} | {"/cron/alerts"}
+    assert len(paths) <= 100
+    assert all(cron["schedule"].endswith("* * *") for cron in config["crons"])

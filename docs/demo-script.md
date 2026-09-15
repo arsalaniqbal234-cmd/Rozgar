@@ -2,9 +2,10 @@
 
 ## 0-2 minutes: problem and outcome
 
-Explain that Rozgar collects remote job listings into one searchable feed and closes
-the loop with authenticated saved searches and non-duplicate alerts. State the honest
-release scope: a hardened three-source beta, with 50-source expansion still outstanding.
+Explain that Rozgar collects remote job listings into one searchable feed and prepares
+the loop with authenticated saved searches and non-duplicate email alerts. State the
+honest release scope: 52 configured sites have live public-board validation, while
+sustained production run history and real email delivery still need evidence.
 
 ## 2-6 minutes: user journey
 
@@ -38,5 +39,5 @@ test, dependency audit, Sentry event scrubbing, readiness probe, and rollback ru
 ## 18-20 minutes: ownership and questions
 
 State the owned metric and its 69.8% p95 reduction, distinguish local benchmark evidence
-from production latency, identify the source-count gap, and describe the next measurable
-step: collect one week of production search p95 and alert delivery success data.
+from production latency, and describe the next measurable step: collect actual source
+run success, one week of production search p95, and real alert delivery success data.

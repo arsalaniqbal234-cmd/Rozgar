@@ -53,6 +53,12 @@ their evidence exists.
 
 ## Remaining roadmap exception
 
-Three scraper sources are registered. This does not satisfy the earlier 10-source and
-50-source milestones. The release may be demonstrated as a hardened three-source beta,
-but it must not be represented as the complete 50-source platform.
+Source expansion after the initial release registers 52 independently tracked sites:
+three remote feeds, 38 Greenhouse employer boards, and 11 Ashby employer boards.
+Every employer board returned at least one published remote posting during the
+2026-09-15 validation; one source from each new adapter normalized live data, and one
+Greenhouse source wrote 80 jobs into the isolated test database in 8.31 seconds.
+This reaches the configured source-count milestones, but does not yet prove 50+
+sources ran reliably in production for a sustained period. The daily Vercel Cron
+rollout and protected health dashboard need real run histories before making that
+claim. Browser automation for blocked sites remains outside this public-API rollout.

@@ -21,7 +21,7 @@ for email alerts.
 - Professional light/dark interface with responsive grid and list views
 - Personal browser shortlist, quick career filters, keyboard search, and job sharing
 - Lightweight job summaries and short-lived public-search caching
-- Three source integrations: RemoteOK, Arbeitnow, and Jobicy
+- Three remote-job feeds plus 49 validated public company career boards
 - Deduplication — prevents the same job from being added twice
 - Real database search (title/company match)
 - Location, salary, and remote filters with cursor pagination
@@ -96,6 +96,11 @@ To fetch jobs on a schedule, open another terminal in `Backend` and run:
 The scheduler runs separately from the API. Email delivery also needs a Resend API
 key, verified sender, and the backend Clerk secret key. See the environment example
 and runbook for the remaining settings.
+
+The Vercel API project also registers 52 protected daily source cron routes and one
+daily alert route. On Vercel Hobby, these can run only once per day and do not replace
+the separate worker for prompt alerts. See the [source expansion note](docs/source-expansion.md)
+for live board validation and the limits of this rollout.
 
 ### Frontend
 Open another terminal at the repository root:

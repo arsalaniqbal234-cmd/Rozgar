@@ -26,7 +26,7 @@ def scrape_source(source):
             run_id = run.id
             start = time.perf_counter()
             try:
-                records = [job.to_dict() for job in AVAILABLE_SCRAPERS[source]().run()]
+                records = [{**job.to_dict(), "source": source} for job in AVAILABLE_SCRAPERS[source]().run()]
                 if not records:
                     raise ValueError("Source returned no usable jobs")
                 added = crud.upsert_jobs(db, records)

@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response
 from sqlalchemy.orm import Session, load_only
 
 from app import cache, crud, schemas
+from app.alerts import run_alert_engine
 from app.auth import verify_api_key
 from app.models import Job
 from app.pipeline import scrape_all, scrape_source
@@ -76,9 +77,27 @@ def scrape_all_sources(_: None = Depends(verify_api_key)):
 
 @router.post("/cron/scrape-all")
 def cron_scrape_all(authorization: str | None = Header(None)):
+    verify_cron_secret(authorization)
+    return {"results": scrape_all()}
+
+
+def verify_cron_secret(authorization: str | None):
     secret = os.getenv("CRON_SECRET")
     if not secret or not authorization or not hmac.compare_digest(
         authorization.encode(), ("Bearer " + secret).encode()
     ):
         raise HTTPException(401, "Unauthorized")
-    return {"results": scrape_all()}
+
+
+@router.get("/cron/scrape/{source}")
+def cron_scrape_source(source: str, authorization: str | None = Header(None)):
+    verify_cron_secret(authorization)
+    if source not in AVAILABLE_SCRAPERS:
+        raise HTTPException(404, "Unknown source")
+    return scrape_source(source)
+
+
+@router.get("/cron/alerts")
+def cron_alerts(authorization: str | None = Header(None), db: Session = Depends(get_db)):
+    verify_cron_secret(authorization)
+    return run_alert_engine(db)

@@ -51,12 +51,16 @@ create/list/delete with a test account. A green GitHub check does not verify the
 public domains by itself.
 
 Email alerts are currently paused. They need production Clerk keys, a Resend API
-key, a verified sender, and a separate running scheduler before public delivery
-can be enabled. After those services work, set
+key, a verified sender, and a running scheduler before public delivery
+can be enabled. The backend project now registers protected Vercel Cron GET routes
+for each of its 52 sources and one alert pass. Vercel Hobby invokes each route at
+most daily, with imprecise timing; it cannot meet the roadmap's prompt-alert goal.
+Use the existing Docker/Codeaza scheduler process for frequent source and alert
+checks once that host is available. After those services work, set
 `NEXT_PUBLIC_EMAIL_ALERTS_ENABLED=true` on the frontend project and rebuild it.
-The API deployment on Vercel does not start the scheduler. Redis server caching
-is likewise optional and currently disabled; browser caching and summary
-responses still work.
+The API deployment on Vercel does not start the always-on APScheduler process.
+Redis server caching is likewise optional and currently disabled; browser caching
+and summary responses still work.
 
 ## Existing repositories and rollback
 
