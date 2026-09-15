@@ -34,9 +34,12 @@ git push origin main
 
 Stage only the paths you actually changed; the `git add` line is an example.
 The root CI workflow checks both apps. Check the frontend and backend deployment
-statuses in Vercel after pushing. Because this repository mixes Python and
-JavaScript rather than using a JavaScript workspace, do not assume Vercel's
-workspace-based unaffected-project skipping applies to it.
+statuses in Vercel after pushing. Both projects have the **Skip deployment when
+root and dependencies are unchanged** switch disabled in Settings > Build and
+Deployment > Root Directory. This repository mixes Python and JavaScript without
+a supported JavaScript workspace, so a root push should build both projects.
+This also makes documentation-only pushes useful as deployment checks; each push
+will consume a build for both apps.
 
 ## Release checks
 
