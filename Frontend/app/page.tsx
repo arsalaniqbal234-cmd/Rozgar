@@ -61,7 +61,7 @@ export default function Home() {
     try {
       const token = await getToken();
       if (!token) throw new Error("Please sign in again.");
-      await api("/saved-searches/", { method: "POST",
+      await api("/saved-searches", { method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ keywords: filters.keyword, location: filters.location || null,
           min_salary: filters.min_salary || null, filters: { salary_only: filters.salary_only,

@@ -18,7 +18,8 @@ if (apiUrl) {
 }
 const config: NextConfig = {
   async rewrites() { return [
-    { source: "/api/jobs/:path*", destination: `${apiUrl}/jobs/:path*` },
+    { source: "/api/jobs", destination: `${apiUrl}/jobs` },
+    { source: "/api/jobs/:jobId", destination: `${apiUrl}/jobs/:jobId` },
     { source: "/api/saved-searches/:path*", destination: `${apiUrl}/saved-searches/:path*` },
     { source: "/api/health", destination: `${apiUrl}/health` },
   ]; },

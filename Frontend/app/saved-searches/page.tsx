@@ -19,7 +19,7 @@ export default function SavedSearchesPage() {
   useEffect(() => {
     if (!isSignedIn) return;
     const controller = new AbortController();
-    getToken().then(token => api<SavedSearch[]>("/saved-searches/", {
+    getToken().then(token => api<SavedSearch[]>("/saved-searches", {
       headers: { Authorization: `Bearer ${token}` }, signal: controller.signal,
     })).then(data => { if (!controller.signal.aborted) { setOwner(userId || null); setItems(data); setError(""); setLoadedKey(requestKey); } })
       .catch(error => { if (!controller.signal.aborted) { setOwner(userId || null); setError(error.message); setLoadedKey(requestKey); } });

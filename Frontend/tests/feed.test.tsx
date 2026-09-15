@@ -61,7 +61,7 @@ describe("job feed", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save search" }));
     await screen.findByText(/Search saved/);
     const [url, options] = fetchMock.mock.calls.find(call => call[1]?.method === "POST")!;
-    expect(url).toMatch(/\/saved-searches\/$/);
+    expect(url).toBe("/api/saved-searches");
     expect(options.headers.Authorization).toBe("Bearer signed-token");
     const payload = JSON.parse(options.body);
     expect(payload.keywords).toBe("Python");
