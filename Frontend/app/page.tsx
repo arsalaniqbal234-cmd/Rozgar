@@ -8,6 +8,7 @@ import { api, salaryLabel } from "../lib/api";
 import { emailAlertsEnabled } from "../lib/features";
 import { Filters, initialFilters, useJobs } from "../lib/use-jobs";
 import BookmarkButton from "./components/bookmark-button";
+import SearchSuggestions from "./components/search-suggestions";
 
 const paths = [
   { label: "Engineering", keyword: "engineer", icon: Code2 },
@@ -27,8 +28,6 @@ export default function Home() {
   const [saving, setSaving] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
   const feed = useJobs(filters);
-  const { hasMore, loading, loadingMore, error: feedError, loadMore } = feed;
-  const sentinel = useRef<HTMLDivElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const update = (patch: Partial<Filters>) => setFilters(previous => ({ ...previous, ...patch }));
   const activeCount = Object.values(filters).filter(Boolean).length;
@@ -43,15 +42,6 @@ export default function Home() {
     window.addEventListener("keydown", focusSearch);
     return () => window.removeEventListener("keydown", focusSearch);
   }, []);
-
-  useEffect(() => {
-    if (!sentinel.current || !hasMore || loading || loadingMore || feedError) return;
-    const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) void loadMore();
-    }, { rootMargin: "200px" });
-    observer.observe(sentinel.current);
-    return () => observer.disconnect();
-  }, [hasMore, loading, loadingMore, feedError, loadMore]);
 
   async function saveSearch() {
     if (!user) { setNotice("Please sign in to save searches."); return; }
@@ -99,13 +89,10 @@ export default function Home() {
     <section id="opportunities" aria-label="Search and filters" className="search-panel">
       <div className="search-heading"><h2>What does your next role look like?</h2><span><SlidersHorizontal size={14} aria-hidden /> Make it your search</span></div>
       <div className="search-primary">
-        <label className="search-box"><Search size={21} aria-hidden /><span className="sr-only">Search jobs</span>
-          <input suppressHydrationWarning ref={searchInput} placeholder="Job title, skill, or company" maxLength={200} value={filters.keyword} onChange={event => update({ keyword: event.target.value })} />
-          <kbd aria-hidden>/</kbd>
-        </label>
-        <label className="search-box location-box"><MapPin size={20} aria-hidden /><span className="sr-only">Location</span>
-          <input suppressHydrationWarning placeholder="City, country, or region" maxLength={200} value={filters.location} onChange={event => update({ location: event.target.value })} />
-        </label>
+        <SearchSuggestions field="title" label="Search jobs" placeholder="Job title, skill, or company"
+          value={filters.keyword} onChange={keyword => update({ keyword })} inputRef={searchInput} shortcut />
+        <SearchSuggestions field="location" label="Location" placeholder="City, country, or region"
+          value={filters.location} onChange={location => update({ location })} />
         <button className="button save-search-button" onClick={saveSearch} disabled={saving}><Bell size={17} aria-hidden />{saving ? "Saving…" : "Save search"}</button>
       </div>
       <div className="search-secondary">
@@ -127,8 +114,8 @@ export default function Home() {
         <p className="sidebar-tip"><Bookmark size={16} aria-hidden /><span>See something you like? Bookmark it to revisit in your shortlist.</span></p>
       </aside>
 
-      <section className="results-section" aria-label="Job results" aria-busy={feed.loading || feed.loadingMore}>
-        <div className="results-heading"><div><p className="eyebrow">THE NEXT CHAPTER</p><h2>{activeCount ? "Your matching opportunities" : "Latest opportunities"}</h2><p className="results-count">{feed.loading ? "Finding your next possibility…" : `${feed.jobs.length} ${feed.jobs.length === 1 ? "role" : "roles"} loaded${feed.hasMore ? " · more as you explore" : ""}`}</p></div>
+      <section className="results-section" aria-label="Job results" aria-busy={feed.loading}>
+        <div className="results-heading"><div><p className="eyebrow">THE NEXT CHAPTER</p><h2>{activeCount ? "Your matching opportunities" : "Latest opportunities"}</h2><p className="results-count">{feed.loading ? "Finding your next possibility…" : `${feed.jobs.length} ${feed.jobs.length === 1 ? "role" : "roles"} on page ${feed.page}`}</p></div>
           <div className="view-switch" role="group" aria-label="Results layout"><button aria-label="Grid view" aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid size={17} aria-hidden /></button><button aria-label="List view" aria-pressed={view === "list"} onClick={() => setView("list")}><List size={18} aria-hidden /></button></div>
         </div>
         {feed.loading && <div><p role="status" className="sr-only">Loading jobs…</p><div className="job-grid" aria-hidden>{Array.from({ length: 6 }, (_, i) => <div className="job-skeleton" key={i}><div /><span /><span /><span /></div>)}</div></div>}
@@ -141,9 +128,12 @@ export default function Home() {
           <div className="job-tags">{job.is_remote ? <span className="remote-tag"><Globe2 size={12} aria-hidden />Remote</span> : <span>Work arrangement not confirmed</span>}{job.salary ? <span>Salary listed</span> : null}</div>
           <div className="job-card-bottom"><p className="job-salary">{salaryLabel(job)}</p><Link href={`/jobs/${job.id}`} prefetch={false} aria-label={`View job at ${job.company}`}><span>View job</span><ArrowUpRight size={17} aria-hidden /></Link></div>
         </article>)}</div>
-        <div ref={sentinel} className="h-4" />
-        {!feed.loading && feed.hasMore && !feed.error && <div className="load-more"><button className="tag" disabled={feed.loadingMore} onClick={() => void feed.loadMore()}>{feed.loadingMore ? "Loading more…" : "Load more jobs"}<ArrowDown size={15} aria-hidden /></button></div>}
-        {!feed.loading && !feed.hasMore && feed.jobs.length > 0 && <p className="results-end"><Check size={15} aria-hidden />You’ve reached the end of these results.</p>}
+        {(feed.hasPrevious || feed.hasNext) && <nav className="job-pagination" aria-label="Job result pages">
+          <button type="button" onClick={feed.previousPage} disabled={!feed.hasPrevious || feed.loading}>Previous</button>
+          <span>Page {feed.page}</span>
+          <button type="button" onClick={feed.nextPage} disabled={!feed.hasNext || feed.loading}>Next</button>
+        </nav>}
+        {!feed.loading && !feed.hasNext && feed.jobs.length > 0 && <p className="results-end"><Check size={15} aria-hidden />You’ve reached the end of these results.</p>}
       </section>
     </div>
     <section className="closing-note"><span className="eyebrow">A SMALL STEP. A NEW POSSIBILITY.</span><h2>Your next chapter is out there.</h2><p>Keep exploring. Save what speaks to you. Find work that fits your life.</p><Link href="/shortlist" className="button">Open your shortlist <ArrowUpRight size={17} aria-hidden /></Link></section>

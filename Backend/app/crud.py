@@ -44,6 +44,15 @@ def get_job_by_id(db, job_id):
     return db.get(Job, job_id)
 
 
+def job_suggestions(db, field: str, query: str, limit: int = 8) -> list[str]:
+    column = Job.title if field == "title" else Job.location
+    return [value for (value,) in (
+        db.query(column)
+        .filter(column.isnot(None), column.icontains(query.strip(), autoescape=True))
+        .distinct().order_by(column).limit(limit).all()
+    )]
+
+
 def upsert_jobs(db, jobs_data):
     added = 0
     for record in jobs_data:

@@ -18,7 +18,7 @@ test("feed search, job details and mobile layout", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-theme", selectedTheme);
   await expect(page.getByRole("link", { name: "Python engineer" })).toBeVisible();
   const searchRequest = page.waitForRequest(request => request.url().includes("keyword=Python"));
-  await page.getByRole("textbox", { name: "Search jobs" }).fill("Python");
+  await page.getByRole("combobox", { name: "Search jobs" }).fill("Python");
   await searchRequest;
   await expect(page.getByRole("link", { name: "Python engineer" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

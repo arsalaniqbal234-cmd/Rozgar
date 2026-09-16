@@ -89,11 +89,15 @@
 .search-heading h2 { font-size: 15px; font-weight: 650; }
 .search-heading > span { display: inline-flex; gap: 6px; color: var(--muted); font-size: 10px; }
 .search-primary { display: grid; grid-template-columns: 1.5fr 1fr auto; gap: 12px; }
+.search-combobox { position: relative; min-width: 0; }
 .search-box { display: flex; align-items: center; min-width: 0; gap: 12px; border: 1px solid var(--border); border-radius: 9px; padding: 0 14px; color: var(--muted); background: var(--page); }
 .search-box:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .search-box input { min-width: 0; width: 100%; height: 48px; font-size: 13px; color: var(--text); outline: none; }
 .search-box > svg { flex-shrink: 0; }
 .search-box kbd { font-size: 11px; border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; }
+.search-suggestions { position: absolute; z-index: 20; top: calc(100% + 5px); left: 0; right: 0; max-height: 240px; overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; box-shadow: var(--shadow); padding: 5px; }
+.search-suggestions button { display: block; width: 100%; padding: 10px; border-radius: 6px; text-align: left; font-size: 12px; color: var(--text); overflow-wrap: anywhere; }
+.search-suggestions button:hover, .search-suggestions button.active { background: var(--soft); }
 .search-secondary { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 25px; margin-top: 20px; font-size: 11px; }
 .salary-filter { display: flex; align-items: center; gap: 10px; color: var(--muted); }
 .salary-filter .field { width: auto; font-size: 11px; padding: 7px 25px 7px 10px; border-radius: 7px; min-height: 36px; }
@@ -164,7 +168,10 @@
 .empty-state { background: var(--surface); border: 1px dashed var(--border); border-radius: 14px; padding: 55px 25px; text-align: center; }
 .empty-state > svg { margin: 0 auto 16px; color: var(--accent); }
 .empty-state h3 { font-size: 20px; font-weight: 600; }.empty-state p { max-width: 350px; margin: 12px auto 24px; font-size: 13px; line-height: 1.7; color: var(--muted); }
-.load-more { display: flex; justify-content: center; padding-block: 12px; }
+.job-pagination { display: flex; align-items: center; justify-content: center; gap: 14px; padding-block: 18px 8px; font-size: 12px; }
+.job-pagination button { padding: 8px 14px; min-width: 84px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); }
+.job-pagination button:hover:not(:disabled) { background: var(--soft); }
+.job-pagination button:disabled { opacity: .45; cursor: not-allowed; }
 .results-end { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 11px; color: var(--muted); padding-block: 15px; }
 .closing-note { border-top: 1px solid var(--border); text-align: center; padding-block: 45px 60px; }
 .closing-note .eyebrow { justify-content: center; }
@@ -218,7 +225,7 @@
   .journey-steps strong { font-size: 11px; }.journey-steps div > span { font-size: 10px; }.step-number { display: none; }.journey-top { margin-bottom: 5px; }.journey-symbol { width: 33px; height: 33px; font-size: 25px; }
   .source-strip { gap: 14px; justify-content: center; text-align: center; }.source-strip > div { gap: 24px; font-size: 14px; }
   .search-panel { padding: 18px; margin-block: 25px; }.search-heading > span { display: none; }.search-primary { grid-template-columns: 1fr 1fr; }
-  .search-primary > .search-box:first-child { grid-column: 1 / -1; }.search-box { padding-inline: 12px; gap: 7px; }.search-box input { font-size: 16px; }
+  .search-primary > .search-combobox:first-child { grid-column: 1 / -1; }.search-box { padding-inline: 12px; gap: 7px; }.search-box input { font-size: 16px; }
   .save-search-button { font-size: 12px; padding-inline: 12px; }.search-secondary { gap: 12px 18px; }.salary-filter { width: 100%; flex-wrap: nowrap; justify-content: space-between; }
   .salary-filter > span { font-size: 11px; }.clear-filters { margin-left: 0; }.discovery-layout { grid-template-columns: 1fr; gap: 28px; margin-top: 30px; }
   .sidebar-note, .sidebar-tip { display: none; }.sidebar-section > .eyebrow { display: none; }.sidebar-section h2 { font-size: 15px; margin-bottom: 10px; }

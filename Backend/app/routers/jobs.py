@@ -2,6 +2,8 @@ import hmac
 import os
 import time
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response
 from sqlalchemy.orm import Session, load_only
 
@@ -53,6 +55,15 @@ def get_jobs(response: Response, params: dict = Depends(parameters), db: Session
     response.headers["X-Cache"] = cache_status
     response.headers["Server-Timing"] = f'jobs;dur={(time.perf_counter()-start)*1000:.2f}'
     return result
+
+
+@router.get("/jobs/suggestions", response_model=list[str])
+def suggest_jobs(
+    field: Literal["title", "location"],
+    q: str = Query(min_length=2, max_length=200),
+    db: Session = Depends(get_db),
+):
+    return crud.job_suggestions(db, field, q) if len(q.strip()) >= 2 else []
 
 
 @router.get("/jobs/{job_id}", response_model=schemas.JobResponse)

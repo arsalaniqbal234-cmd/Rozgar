@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { api, clearJobCache, Job } from "./api";
 
 export type Filters = { keyword: string; location: string; min_salary: number; salary_only: boolean; remote_only: boolean };
@@ -8,61 +8,47 @@ const PAGE_SIZE = 20;
 
 export function useJobs(filters: Filters) {
   const key = JSON.stringify(filters);
-  const active = useRef("");
-  const moreController = useRef<AbortController | null>(null);
-  const [retry, setRetry] = useState(0);
-  const [state, setState] = useState<{ key: string; jobs: Job[]; error: string; hasMore: boolean; loadingMore: boolean }>({
-    key: "", jobs: [], error: "", hasMore: false, loadingMore: false,
+  const [pagination, setPagination] = useState<{ key: string; cursors: (number | undefined)[]; index: number }>({
+    key: "", cursors: [undefined], index: 0,
   });
-  const requestKey = key + ":" + retry;
-  const buildQuery = useCallback((beforeId?: number) => {
-    const query = new URLSearchParams();
-    const values = JSON.parse(key) as Filters;
-    Object.entries(values).forEach(([name, value]) => { if (value) query.set(name, String(value)); });
-    query.set("limit", String(PAGE_SIZE));
-    query.set("summary", "true");
-    if (beforeId) query.set("before_id", String(beforeId));
-    return "/jobs?" + query;
-  }, [key]);
+  const current = pagination.key === key ? pagination : { key, cursors: [undefined], index: 0 };
+  const cursor = current.cursors[current.index];
+  const [retry, setRetry] = useState(0);
+  const [state, setState] = useState<{ key: string; jobs: Job[]; error: string; hasNext: boolean }>({
+    key: "", jobs: [], error: "", hasNext: false,
+  });
+  const requestKey = `${key}:${current.index}:${cursor ?? "first"}:${retry}`;
 
   useEffect(() => {
-    active.current = requestKey;
-    moreController.current?.abort();
-    moreController.current = null;
     const controller = new AbortController();
     const timer = setTimeout(() => {
-      api<Job[]>(buildQuery(), { signal: controller.signal, cache: "force-cache" }).then(jobs => {
-        if (!controller.signal.aborted) setState({ key: requestKey, jobs, error: "", hasMore: jobs.length === PAGE_SIZE, loadingMore: false });
+      const query = new URLSearchParams();
+      Object.entries(filters).forEach(([name, value]) => { if (value) query.set(name, String(value)); });
+      query.set("limit", String(PAGE_SIZE + 1));
+      query.set("summary", "true");
+      if (cursor) query.set("before_id", String(cursor));
+      api<Job[]>("/jobs?" + query, { signal: controller.signal, cache: "force-cache" }).then(rows => {
+        if (!controller.signal.aborted) setState({ key: requestKey, jobs: rows.slice(0, PAGE_SIZE), error: "", hasNext: rows.length > PAGE_SIZE });
       }).catch(error => {
-        if (!controller.signal.aborted) setState({ key: requestKey, jobs: [], error: error.message, hasMore: false, loadingMore: false });
+        if (!controller.signal.aborted) setState({ key: requestKey, jobs: [], error: error.message, hasNext: false });
       });
     }, filters.keyword || filters.location ? 300 : 0);
-    return () => { clearTimeout(timer); controller.abort(); moreController.current?.abort(); };
-  }, [requestKey, buildQuery, filters.keyword, filters.location]);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [key, requestKey, cursor, filters.keyword, filters.location, filters]);
 
-  const loadMore = useCallback(async () => {
-    if (moreController.current || state.key !== requestKey || state.loadingMore || !state.hasMore || state.error) return;
-    const controller = new AbortController();
-    moreController.current = controller;
-    setState(previous => ({ ...previous, loadingMore: true }));
-    try {
-      const jobs = await api<Job[]>(buildQuery(state.jobs.at(-1)?.id), { signal: controller.signal, cache: "force-cache" });
-      if (!controller.signal.aborted && active.current === requestKey) {
-        setState(previous => {
-          const ids = new Set(previous.jobs.map(job => job.id));
-          return { ...previous, jobs: [...previous.jobs, ...jobs.filter(job => !ids.has(job.id))],
-            hasMore: jobs.length === PAGE_SIZE, loadingMore: false };
-        });
-      }
-    } catch (error) {
-      if (!controller.signal.aborted && active.current === requestKey)
-        setState(previous => ({ ...previous, error: (error as Error).message, loadingMore: false }));
-    } finally {
-      if (moreController.current === controller) moreController.current = null;
-    }
-  }, [state, requestKey, buildQuery]);
-
-  return { jobs: state.key === requestKey ? state.jobs : [], error: state.key === requestKey ? state.error : "",
-    loading: state.key !== requestKey, loadingMore: state.loadingMore, hasMore: state.hasMore,
-    loadMore, retry: () => { clearJobCache(); setRetry(value => value + 1); } };
+  const ready = state.key === requestKey;
+  const jobs = ready ? state.jobs : [];
+  const hasNext = ready && state.hasNext;
+  return {
+    jobs, error: ready ? state.error : "", loading: !ready, hasNext,
+    page: current.index + 1, hasPrevious: current.index > 0,
+    nextPage: () => {
+      if (!hasNext || jobs.length !== PAGE_SIZE) return;
+      setPagination({ key, cursors: [...current.cursors.slice(0, current.index + 1), jobs[PAGE_SIZE - 1].id], index: current.index + 1 });
+    },
+    previousPage: () => {
+      if (current.index > 0) setPagination({ ...current, index: current.index - 1 });
+    },
+    retry: () => { clearJobCache(); setRetry(value => value + 1); },
+  };
 }

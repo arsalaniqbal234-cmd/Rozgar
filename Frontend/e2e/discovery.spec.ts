@@ -40,11 +40,11 @@ test("career presets, views, themes and keyboard search remain usable", async ({
   await expect(page.locator(".job-list article")).toHaveCount(4);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.keyboard.press("/");
-  await expect(page.getByRole("textbox", { name: "Search jobs" })).toBeFocused();
+  await expect(page.getByRole("combobox", { name: "Search jobs" })).toBeFocused();
   const request = page.waitForRequest(req => req.url().includes("keyword=design"));
   await page.getByRole("button", { name: "Design", exact: true }).click();
   await request;
-  await expect(page.getByRole("textbox", { name: "Search jobs" })).toHaveValue("design");
+  await expect(page.getByRole("combobox", { name: "Search jobs" })).toHaveValue("design");
   await page.getByRole("button", { name: /Clear filters/ }).click();
-  await expect(page.getByRole("textbox", { name: "Search jobs" })).toHaveValue("");
+  await expect(page.getByRole("combobox", { name: "Search jobs" })).toHaveValue("");
 });

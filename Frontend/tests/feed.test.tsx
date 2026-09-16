@@ -45,19 +45,45 @@ describe("job feed", () => {
     render(<Home />);
     expect(await screen.findByText("No matching jobs yet")).toBeInTheDocument();
   });
-  it("loads the next cursor instead of slicing the first page", async () => {
-    const page = Array.from({ length: 20 }, (_, index) => ({ ...job, id: 100 - index, title: "Role " + index }));
+  it("shows at most 20 jobs per page and navigates with a cursor", async () => {
+    const page = Array.from({ length: 21 }, (_, index) => ({ ...job, id: 100 - index, title: "Role " + index }));
     fetchMock.mockResolvedValueOnce(Response.json(page)).mockResolvedValueOnce(Response.json([job]));
     render(<Home />);
-    fireEvent.click(await screen.findByRole("button", { name: "Load more jobs" }));
+    expect(await screen.findByRole("button", { name: "Next" })).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(20);
+    expect(screen.queryByRole("link", { name: "Role 20" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(await screen.findByRole("link", { name: "Python engineer" })).toBeInTheDocument();
     expect(fetchMock.mock.calls[1][0]).toContain("before_id=81");
-    expect(screen.getAllByRole("article")).toHaveLength(21);
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(screen.getByText("Page 2")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Previous" }));
+    expect(await screen.findByRole("link", { name: "Role 0" })).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(20);
+  });
+  it("suggests matching job titles and locations while typing", async () => {
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url.includes("/suggestions?")) return Response.json(url.includes("field=title") ? ["Python engineer"] : ["Lahore"]);
+      return Response.json([job]);
+    });
+    render(<Home />);
+    const title = screen.getByRole("combobox", { name: "Search jobs" });
+    fireEvent.focus(title);
+    fireEvent.change(title, { target: { value: "Pyt" } });
+    await screen.findByRole("option", { name: "Python engineer" });
+    fireEvent.keyDown(title, { key: "ArrowDown" });
+    fireEvent.keyDown(title, { key: "Enter" });
+    expect(title).toHaveValue("Python engineer");
+    const location = screen.getByRole("combobox", { name: "Location" });
+    fireEvent.focus(location);
+    fireEvent.change(location, { target: { value: "Lah" } });
+    fireEvent.click(await screen.findByRole("option", { name: "Lahore" }));
+    expect(location).toHaveValue("Lahore");
   });
   it("sends a signed saved-search request without client-controlled identity", async () => {
     fetchMock.mockImplementation(async (_url: string, options?: RequestInit) => Response.json(options?.method === "POST" ? { id: 1 } : []));
     render(<Home />);
-    fireEvent.change(screen.getByRole("textbox", { name: "Search jobs" }), { target: { value: "Python" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Search jobs" }), { target: { value: "Python" } });
     fireEvent.click(screen.getByRole("button", { name: "Save search" }));
     await screen.findByText(/Search saved/);
     const [url, options] = fetchMock.mock.calls.find(call => call[1]?.method === "POST")!;
@@ -81,7 +107,7 @@ describe("job feed", () => {
       .mockResolvedValue(Response.json([{ ...job, title: "React engineer" }]));
     render(<Home />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
-    fireEvent.change(screen.getByRole("textbox", { name: "Search jobs" }), { target: { value: "React" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Search jobs" }), { target: { value: "React" } });
     expect(await screen.findByRole("link", { name: "React engineer" })).toBeInTheDocument();
     resolveOld(Response.json([job]));
     await new Promise(resolve => setTimeout(resolve, 20));
