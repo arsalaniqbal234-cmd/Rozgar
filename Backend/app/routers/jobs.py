@@ -60,10 +60,10 @@ def get_jobs(response: Response, params: dict = Depends(parameters), db: Session
 @router.get("/jobs/suggestions", response_model=list[str])
 def suggest_jobs(
     field: Literal["title", "location"],
-    q: str = Query(min_length=2, max_length=200),
+    q: str = Query(min_length=1, max_length=200),
     db: Session = Depends(get_db),
 ):
-    return crud.job_suggestions(db, field, q) if len(q.strip()) >= 2 else []
+    return crud.job_suggestions(db, field, q) if q.strip() else []
 
 
 @router.get("/jobs/{job_id}", response_model=schemas.JobResponse)

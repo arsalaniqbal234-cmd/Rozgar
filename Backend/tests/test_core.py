@@ -188,7 +188,8 @@ def test_job_suggestions_are_distinct_and_field_specific(client, db):
     job(db, title="Design 100% role", source_id="remoteok_3", location="Berlin")
     assert client.get("/jobs/suggestions", params={"field": "title", "q": "python"}).json() == ["Python Engineer"]
     assert client.get("/jobs/suggestions", params={"field": "location", "q": "lah"}).json() == ["Lahore"]
-    assert client.get("/jobs/suggestions", params={"field": "title", "q": "%"}).status_code == 422
+    assert client.get("/jobs/suggestions", params={"field": "title", "q": "%"}).json() == ["Design 100% role"]
+    assert client.get("/jobs/suggestions", params={"field": "title", "q": ""}).status_code == 422
     assert client.get("/jobs/suggestions", params={"field": "title", "q": "  "}).json() == []
     assert client.get("/jobs/suggestions", params={"field": "title", "q": "0%"}).json() == ["Design 100% role"]
     assert client.get("/jobs/suggestions", params={"field": "company", "q": "Py"}).status_code == 422

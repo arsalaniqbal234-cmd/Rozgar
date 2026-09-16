@@ -98,6 +98,7 @@
 .search-suggestions { position: absolute; z-index: 20; top: calc(100% + 5px); left: 0; right: 0; max-height: 240px; overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; box-shadow: var(--shadow); padding: 5px; }
 .search-suggestions button { display: block; width: 100%; padding: 10px; border-radius: 6px; text-align: left; font-size: 12px; color: var(--text); overflow-wrap: anywhere; }
 .search-suggestions button:hover, .search-suggestions button.active { background: var(--soft); }
+.search-suggestions-status { padding: 11px 13px; color: var(--muted); font-size: 12px; }
 .search-secondary { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 25px; margin-top: 20px; font-size: 11px; }
 .salary-filter { display: flex; align-items: center; gap: 10px; color: var(--muted); }
 .salary-filter .field { width: auto; font-size: 11px; padding: 7px 25px 7px 10px; border-radius: 7px; min-height: 36px; }

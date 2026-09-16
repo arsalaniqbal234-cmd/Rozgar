@@ -18,24 +18,25 @@ export default function SearchSuggestions({ field, label, placeholder, value, on
   const id = useId();
   const [focused, setFocused] = useState(false);
   const [open, setOpen] = useState(true);
-  const [result, setResult] = useState<{ query: string; rows: string[] }>({ query: "", rows: [] });
+  const [result, setResult] = useState<{ query: string; rows: string[]; error: boolean }>({ query: "", rows: [], error: false });
   const [active, setActive] = useState(-1);
   const query = value.trim();
 
   useEffect(() => {
-    if (!focused || !open || query.length < 2) return;
+    if (!focused || !open || !query) return;
     const controller = new AbortController();
     const timer = setTimeout(() => {
       const params = new URLSearchParams({ field, q: query });
       api<string[]>("/jobs/suggestions?" + params, { signal: controller.signal })
-        .then(rows => { if (!controller.signal.aborted) setResult({ query, rows }); })
-        .catch(() => { if (!controller.signal.aborted) setResult({ query, rows: [] }); });
+        .then(rows => { if (!controller.signal.aborted) setResult({ query, rows, error: false }); })
+        .catch(() => { if (!controller.signal.aborted) setResult({ query, rows: [], error: true }); });
     }, 200);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [field, focused, open, query]);
 
   const suggestions = result.query === query ? result.rows : [];
-  const visible = focused && open && query.length >= 2 && suggestions.length > 0;
+  const showMenu = focused && open && Boolean(query);
+  const visible = showMenu && suggestions.length > 0;
   const choose = (suggestion: string) => {
     onChange(suggestion);
     setOpen(false);
@@ -62,10 +63,12 @@ export default function SearchSuggestions({ field, label, placeholder, value, on
         }} />
       {shortcut && <kbd aria-hidden>/</kbd>}
     </label>
-    {visible && <div className="search-suggestions" id={id} role="listbox" aria-label={`${label} suggestions`}>
+    {showMenu && (visible ? <div className="search-suggestions" id={id} role="listbox" aria-label={`${label} suggestions`}>
       {suggestions.map((suggestion, index) => <button type="button" role="option" aria-selected={active === index}
         id={`${id}-option-${index}`} key={suggestion} onMouseDown={event => event.preventDefault()}
         onClick={() => choose(suggestion)} className={active === index ? "active" : ""}>{suggestion}</button>)}
-    </div>}
+    </div> : <div className="search-suggestions search-suggestions-status" role="status">
+      {result.query !== query ? "Finding matches…" : result.error ? "Suggestions unavailable" : "No matching suggestions"}
+    </div>)}
   </div>;
 }

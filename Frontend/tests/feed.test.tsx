@@ -69,14 +69,14 @@ describe("job feed", () => {
     render(<Home />);
     const title = screen.getByRole("combobox", { name: "Search jobs" });
     fireEvent.focus(title);
-    fireEvent.change(title, { target: { value: "Pyt" } });
+    fireEvent.change(title, { target: { value: "P" } });
     await screen.findByRole("option", { name: "Python engineer" });
     fireEvent.keyDown(title, { key: "ArrowDown" });
     fireEvent.keyDown(title, { key: "Enter" });
     expect(title).toHaveValue("Python engineer");
     const location = screen.getByRole("combobox", { name: "Location" });
     fireEvent.focus(location);
-    fireEvent.change(location, { target: { value: "Lah" } });
+    fireEvent.change(location, { target: { value: "L" } });
     fireEvent.click(await screen.findByRole("option", { name: "Lahore" }));
     expect(location).toHaveValue("Lahore");
   });
