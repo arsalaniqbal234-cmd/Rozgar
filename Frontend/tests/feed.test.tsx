@@ -134,9 +134,19 @@ it("has local logo assets for company-board brands missing from the icon set", (
   const companies = ["Twilio", "Fivetran", "LaunchDarkly", "Mercury", "Tenable", "Wiz",
     "Abnormal Security", "Expel", "Huntress", "Axonius", "Censys", "Bishop Fox", "Praetorian",
     "Remote", "Chime", "Confluent", "Plaid", "Ramp", "OpenAI", "Material Security", "Semgrep"];
-  const { container } = render(<>{companies.map(company => <CompanyLogo key={company} company={company} variant={0} />)}</>);
+  const { container } = render(<>{companies.map(company => <CompanyLogo key={company} company={company}
+    variant={0} sourceId="greenhouse_example" jobUrl="https://example.com/job" />)}</>);
   expect(container.querySelectorAll("[data-company-logo]")).toHaveLength(companies.length);
   expect(container.querySelectorAll("img")).toHaveLength(companies.length);
+});
+
+it("requests the employer logo for Arbeitnow jobs and preserves the initials fallback", () => {
+  const { container } = render(<CompanyLogo company="SEOMATIK GmbH" variant={2}
+    sourceId="arbeitnow_job-1" jobUrl="https://www.arbeitnow.com/jobs/companies/seomatik/example" />);
+  const image = container.querySelector("[data-company-logo=arbeitnow] img") as HTMLImageElement;
+  expect(image.src).toContain("/api/company-logo?");
+  fireEvent.error(image);
+  expect(screen.getByText("SE")).toBeInTheDocument();
 });
 
 it("deletes an owned saved search through the authenticated endpoint", async () => {
