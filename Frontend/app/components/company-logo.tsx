@@ -40,15 +40,39 @@ const icons: Record<string, SimpleIcon> = {
   vercel: siVercel,
 };
 
+const localIcons: Record<string, string> = {
+  abnormalsecurity: "abnormal.png",
+  axonius: "axonius.png",
+  bishopfox: "bishopfox.png",
+  censys: "censys.png",
+  chime: "chime.png",
+  confluent: "confluent.png",
+  expel: "expel.png",
+  fivetran: "fivetran.png",
+  huntress: "huntress.png",
+  launchdarkly: "launchdarkly.png",
+  materialsecurity: "materialsecurity.png",
+  mercury: "mercury.png",
+  openai: "openai.png",
+  plaid: "plaid.png",
+  praetorian: "praetorian.png",
+  ramp: "ramp.png",
+  remote: "remote.png",
+  semgrep: "semgrep.png",
+  tenable: "tenable.png",
+  twilio: "twilio.png",
+  wiz: "wiz.svg",
+};
+
 const normalize = (company: string) => company.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export default function CompanyLogo({ company, variant }: { company: string; variant: number }) {
   const key = normalize(company);
   const icon = icons[key];
-  if (key === "wiz") {
-    return <span className="company-mark company-logo" data-company-logo="wiz" aria-hidden>
-      {/* The source is an official Wiz mark published in Microsoft's Azure Sentinel repository. */}
-      <Image src="/company-logos/wiz.svg" alt="" width={30} height={30} />
+  const localIcon = localIcons[key];
+  if (localIcon) {
+    return <span className="company-mark company-logo" data-company-logo={key} aria-hidden>
+      <Image src={`/company-logos/${localIcon}`} alt="" width={30} height={30} />
     </span>;
   }
   if (icon) {

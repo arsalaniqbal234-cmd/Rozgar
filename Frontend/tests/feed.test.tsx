@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "../app/page";
+import CompanyLogo from "../app/components/company-logo";
 import SavedSearchesPage from "../app/saved-searches/page";
 import { api, clearJobCache, salaryLabel, safeLink } from "../lib/api";
 import { scrubEvent } from "../lib/sentry";
@@ -127,6 +128,15 @@ describe("job feed", () => {
     await new Promise(resolve => setTimeout(resolve, 20));
     expect(screen.queryByRole("link", { name: "Python engineer" })).not.toBeInTheDocument();
   });
+});
+
+it("has local logo assets for company-board brands missing from the icon set", () => {
+  const companies = ["Twilio", "Fivetran", "LaunchDarkly", "Mercury", "Tenable", "Wiz",
+    "Abnormal Security", "Expel", "Huntress", "Axonius", "Censys", "Bishop Fox", "Praetorian",
+    "Remote", "Chime", "Confluent", "Plaid", "Ramp", "OpenAI", "Material Security", "Semgrep"];
+  const { container } = render(<>{companies.map(company => <CompanyLogo key={company} company={company} variant={0} />)}</>);
+  expect(container.querySelectorAll("[data-company-logo]")).toHaveLength(companies.length);
+  expect(container.querySelectorAll("img")).toHaveLength(companies.length);
 });
 
 it("deletes an owned saved search through the authenticated endpoint", async () => {
