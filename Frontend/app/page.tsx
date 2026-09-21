@@ -8,6 +8,7 @@ import { api, salaryLabel } from "../lib/api";
 import { emailAlertsEnabled } from "../lib/features";
 import { Filters, initialFilters, useJobs } from "../lib/use-jobs";
 import BookmarkButton from "./components/bookmark-button";
+import CompanyLogo from "./components/company-logo";
 import SearchSuggestions from "./components/search-suggestions";
 
 const paths = [
@@ -122,7 +123,7 @@ export default function Home() {
         {feed.error && <div role="alert" className="empty-state"><Globe2 size={28} aria-hidden /><h3>Let’s try that again</h3><p>{feed.error}</p><button className="button" onClick={feed.retry}>Try again</button></div>}
         {!feed.loading && !feed.error && feed.jobs.length === 0 && <div className="empty-state"><BriefcaseBusiness size={30} aria-hidden /><h3>No matching jobs yet</h3><p>A new direction could be one keyword away. Try a broader search or clear some filters.</p><button className="button" onClick={() => setFilters(initialFilters)}>Explore all roles</button></div>}
         <div className={`job-grid ${view === "list" ? "job-list" : ""}`}>{feed.jobs.map(job => <article key={job.id} className="job-card">
-          <div className="job-card-top"><span className={`company-mark mark-${job.id % 4}`} aria-hidden>{job.company.trim().slice(0, 2).toUpperCase()}</span><div className="job-company"><p>{job.company}</p><span>{sources[job.source_id.split("_")[0]] || "Job board"}</span></div><BookmarkButton job={job} /></div>
+          <div className="job-card-top"><CompanyLogo company={job.company} variant={job.id % 4} /><div className="job-company"><p>{job.company}</p><span>{sources[job.source_id.split("_")[0]] || "Job board"}</span></div><BookmarkButton job={job} /></div>
           <h3><Link href={`/jobs/${job.id}`} prefetch={false}>{job.title}</Link></h3>
           <p className="job-location"><MapPin size={14} aria-hidden />{job.location || "Location not listed"}</p>
           <div className="job-tags">{job.is_remote ? <span className="remote-tag"><Globe2 size={12} aria-hidden />Remote</span> : <span>Work arrangement not confirmed</span>}{job.salary ? <span>Salary listed</span> : null}</div>

@@ -135,6 +135,8 @@
 .job-card:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); box-shadow: 0 8px 25px #20332609; }
 .job-card-top { display: flex; gap: 11px; align-items: center; min-width: 0; }
 .company-mark { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 13px; font-weight: 750; flex-shrink: 0; letter-spacing: -.5px; }
+.company-logo { background: #fff; border: 1px solid var(--border); padding: 8px; }
+.company-logo svg, .company-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .mark-0 { background: #eeeaf7; color: #665592; }.mark-1 { background: #e7efe4; color: #496c48; }.mark-2 { background: #fbefd8; color: #8b692c; }.mark-3 { background: #e6eff8; color: #476c93; }
 .job-company { min-width: 0; }
 .job-company p { font-size: 12px; font-weight: 650; overflow-wrap: anywhere; }

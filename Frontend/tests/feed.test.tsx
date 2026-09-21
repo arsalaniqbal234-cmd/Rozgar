@@ -33,6 +33,20 @@ describe("job feed", () => {
     expect(await screen.findByRole("link", { name: "Python engineer" })).toHaveAttribute("href", "/jobs/21");
     expect(screen.getByText("USD 100,000 / annual")).toBeInTheDocument();
   });
+  it("shows known company logos and keeps initials for unknown companies", async () => {
+    fetchMock.mockResolvedValue(Response.json([
+      { ...job, id: 22, company: "Pinterest", title: "Pinterest role" },
+      { ...job, id: 23, company: "Wiz", title: "Wiz role" },
+      { ...job, id: 24, company: "Grafana Labs", title: "Grafana role" },
+      { ...job, id: 25, company: "Coinbase", title: "Coinbase role" },
+      { ...job, id: 26, company: "Example", title: "Fallback role" },
+    ]));
+    const { container } = render(<Home />);
+    await screen.findByRole("link", { name: "Pinterest role" });
+    for (const company of ["pinterest", "wiz", "grafanalabs", "coinbase"])
+      expect(container.querySelector(`[data-company-logo="${company}"]`)).toBeInTheDocument();
+    expect(screen.getByText("EX")).toBeInTheDocument();
+  });
   it("treats HTTP failures as errors and recovers on retry", async () => {
     fetchMock.mockResolvedValueOnce(Response.json({ detail: "broken" }, { status: 500 }))
       .mockResolvedValueOnce(Response.json([job]));
