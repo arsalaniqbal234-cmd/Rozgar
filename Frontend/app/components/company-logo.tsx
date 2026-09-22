@@ -69,6 +69,11 @@ const localIcons: Record<string, string> = {
 
 const normalize = (company: string) => company.toLowerCase().replace(/[^a-z0-9]/g, "");
 
+export function hasCompanyLogo(company: string, sourceId: string): boolean {
+  const key = normalize(company);
+  return Boolean(localIcons[key] || icons[key] || sourceId.startsWith("arbeitnow_"));
+}
+
 export default function CompanyLogo({ company, variant, sourceId, jobUrl }: {
   company: string; variant: number; sourceId: string; jobUrl: string;
 }) {

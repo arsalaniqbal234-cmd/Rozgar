@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Mosaic Campaigns interface preview</title>
+  <desc id="desc">Illustrative fictional marketing application interface; not a screenshot of an employer product.</desc>
+  <style>
+    /* Edit these palette tokens to restyle this sample. Geometry lives in LAYOUT in the generator. */
+    svg { --bg:#f5eaf0; --bg2:#fcf8fa; --ink:#4b3543; --muted:#9b8592; --accent:#ad7895; --accent-soft:#f7eaf1; --border:#eadfe6; --surface:#ffffff; --line:#eadfe6; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+
+    /* One six-second loop; the host unmounts this document on card leave. */
+    .motion-pointer{animation:pointerRoute 6s ease-in-out infinite;filter:drop-shadow(0 3px 4px #151c3760)}.motion-tap{animation:pointerTap 6s ease-out infinite;transform-origin:2px 2px}@keyframes pointerRoute{0%{transform:translate(782px,407px)}23%{transform:translate(490px,278px)}56%,76%{transform:translate(599px,231px)}100%{transform:translate(782px,407px)}}@keyframes pointerTap{0%,52%,60%,100%{opacity:0;transform:scale(.4)}56%{opacity:.8;transform:scale(1.5)}59%{opacity:0;transform:scale(2)}}.motion-bar{transform-box:fill-box;transform-origin:center bottom;animation:barRise 6s ease-in-out infinite}@keyframes barRise{0%,9%{transform:scaleY(.05)}55%,91%{transform:scaleY(1)}100%{transform:scaleY(.05)}}.motion-kpi{animation:kpiIn 6s ease-out infinite}@keyframes kpiIn{0%,8%{opacity:.25;transform:translateY(5px)}25%,91%{opacity:1;transform:translateY(0)}100%{opacity:.25;transform:translateY(5px)}}
+    @media(prefers-reduced-motion:reduce){.motion-pointer,.motion-tap{display:none}.motion-row,.motion-layer,.motion-swatch,.motion-art,.motion-line,.motion-area,.motion-bar,.motion-dot,.motion-fill,.motion-kpi,.motion-calendar,.motion-trace,.motion-scan{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
+  </style>
+  <defs>
+    <linearGradient id="backdrop" x2="1" y2="1"><stop stop-color="var(--bg)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <linearGradient id="panel" x2="0" y2="1"><stop stop-color="var(--surface)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <filter id="windowShadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="23" flood-color="var(--ink)" flood-opacity=".14"/></filter>
+    <filter id="cardShadow" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="var(--ink)" flood-opacity=".07"/></filter>
+    <clipPath id="windowClip"><rect x="60" y="44" width="840" height="452" rx="18"/></clipPath>
+  </defs>
+  <rect width="960" height="540" fill="url(#backdrop)"/>
+  <circle cx="858" cy="75" r="188" fill="var(--surface)" opacity=".26"/>
+  <circle cx="80" cy="517" r="169" fill="var(--accent)" opacity=".045"/>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="var(--surface)" filter="url(#windowShadow)"/>
+  <g clip-path="url(#windowClip)">
+    <rect x="60" y="44" width="840" height="44" fill="var(--surface)"/>
+    <path d="M60 88H900" stroke="var(--border)"/>
+    <circle cx="84" cy="66" r="5" fill="#ed9c9c"/><circle cx="101" cy="66" r="5" fill="#e8c27d"/><circle cx="118" cy="66" r="5" fill="#9cc9ad"/>
+    <text x="148" y="71" fill="var(--ink)" font-size="12" font-weight="700" >Mosaic Campaigns</text>
+    <text x="837" y="71" fill="var(--muted)" font-size="11" font-weight="500" text-anchor="end">Marketing dashboard</text>
+
+
+    <rect x="60" y="88" width="176" height="408" rx="0" fill="#fafbfc" />
+    <path d="M236 88v408" stroke="var(--border)"/>
+    <rect x="80" y="108" width="30" height="30" rx="8" fill="var(--accent)" />
+    <text x="95" y="129" fill="#ffffff" font-size="16" font-weight="750" text-anchor="middle">M</text>
+    <text x="119" y="128" fill="var(--ink)" font-size="14" font-weight="750" >Mosaic</text>
+    <text x="84" y="183" fill="var(--muted)" font-size="9" font-weight="700" letter-spacing="1.4">MARKETING</text>
+    <rect x="75" y="198" width="150" height="35" rx="7" fill="var(--accent-soft)" /><text x="95" y="222" fill="var(--accent)" font-size="11" font-weight="700" >▦  Overview</text><text x="95" y="263" fill="var(--muted)" font-size="11" font-weight="500" >▤  Projects</text><text x="95" y="304" fill="var(--muted)" font-size="11" font-weight="500" >▥  Reports</text><text x="95" y="345" fill="var(--muted)" font-size="11" font-weight="500" >⚙  Settings</text>
+    <rect x="77" y="422" width="146" height="50" rx="8" fill="var(--accent-soft)" />
+    <text x="91" y="442" fill="var(--ink)" font-size="10" font-weight="700" >Workspace</text>
+    <text x="91" y="457" fill="var(--muted)" font-size="9" font-weight="500" >All systems ready</text>
+
+    <rect x="236" y="88" width="664" height="408" rx="0" fill="#fcfdfd" />
+    <text x="271" y="134" fill="var(--ink)" font-size="21" font-weight="750" >Campaign performance</text>
+    <text x="271" y="156" fill="var(--muted)" font-size="11" font-weight="500" >A clear view of what matters today.</text>
+    <rect x="754" y="110" width="112" height="30" rx="15" fill="var(--accent)" />
+    <text x="810" y="130" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">View report →</text>
+    <rect x="270" y="181" width="412" height="228" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="290" y="208" fill="var(--muted)" font-size="10" font-weight="700" letter-spacing="1.2">TOTAL REACH</text>
+    <g class="motion-kpi"><text x="289" y="248" fill="var(--ink)" font-size="31" font-weight="750" >248k</text></g>
+    <rect x="543" y="205" width="115" height="25" rx="13" fill="var(--accent-soft)" />
+    <text x="600" y="222" fill="var(--accent)" font-size="10" font-weight="750" text-anchor="middle">↗  +18.2%</text>
+
+    <path d="M284 360H661M284 320H661M284 280H661" stroke="var(--border)" stroke-dasharray="4 6"/>
+    <rect x="291" y="305" width="19" height="55" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.00s"/><rect x="324" y="278" width="19" height="82" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.11s"/><rect x="357" y="291" width="19" height="69" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.22s"/><rect x="390" y="255" width="19" height="105" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.33s"/><rect x="423" y="276" width="19" height="84" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.44s"/><rect x="456" y="231" width="19" height="129" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.55s"/><rect x="489" y="248" width="19" height="112" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.66s"/><rect x="522" y="207" width="19" height="153" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.77s"/><rect x="555" y="231" width="19" height="129" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-0.88s"/><rect x="588" y="191" width="19" height="169" rx="5" fill="var(--accent)" class="motion-bar" style="animation-delay:-0.99s"/><rect x="621" y="215" width="19" height="145" rx="5" fill="var(--accent-soft)" class="motion-bar" style="animation-delay:-1.10s"/>
+    <text x="288" y="381" fill="var(--muted)" font-size="9" font-weight="500" >JAN</text><text x="456" y="381" fill="var(--muted)" font-size="9" font-weight="500" >JUN</text><text x="623" y="381" fill="var(--muted)" font-size="9" font-weight="500" >DEC</text>
+
+    <rect x="698" y="181" width="169" height="105" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="716" y="209" fill="var(--muted)" font-size="10" font-weight="650" >Conversion</text>
+    <text x="716" y="251" fill="var(--ink)" font-size="26" font-weight="750" >5.6%</text>
+    <rect x="698" y="298" width="169" height="111" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="716" y="324" fill="var(--muted)" font-size="9" font-weight="700" letter-spacing="1.2">AT A GLANCE</text>
+    <rect x="716" y="343" width="7" height="7" rx="4" fill="var(--accent)" /><text x="731" y="351" fill="var(--ink)" font-size="10" font-weight="550" >4 channels active</text><rect x="716" y="372" width="7" height="7" rx="4" fill="var(--accent)" /><text x="731" y="380" fill="var(--ink)" font-size="10" font-weight="550" >Audience +18%</text>
+    <text x="271" y="446" fill="var(--muted)" font-size="10" font-weight="500" >Updated just now</text>
+    <g class="motion-pointer"><path d="M0 0v25l7-7 6 13 5-2-6-13h12Z" fill="#fff" stroke="#283044" stroke-width="2" stroke-linejoin="round"/><circle class="motion-tap" cx="2" cy="2" r="10" fill="none" stroke="#fff" stroke-width="2"/></g>
+
+  </g>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="none" stroke="var(--border)"/>
+</svg>

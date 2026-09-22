@@ -61,3 +61,17 @@ class SavedSearchResponse(BaseModel):
     created_at: datetime
     last_notified_at: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyFollowCreate(BaseModel):
+    job_id: int = Field(ge=1)
+    model_config = ConfigDict(extra="forbid")
+
+
+class CompanyFollowResponse(BaseModel):
+    id: int
+    company_name: str
+    is_active: bool
+    followed_at: datetime
+    last_notified_at: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)

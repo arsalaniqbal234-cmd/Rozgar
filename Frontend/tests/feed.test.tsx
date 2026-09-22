@@ -10,6 +10,7 @@ const auth = vi.hoisted(() => ({ user: { id: "user_a" } as { id: string } | null
 vi.mock("@clerk/nextjs", () => ({
   useUser: () => ({ user: auth.user }),
   useAuth: () => ({ isSignedIn: Boolean(auth.user), userId: auth.user?.id || null, getToken: auth.getToken }),
+  useClerk: () => ({ openSignIn: vi.fn() }),
   Show: ({ when, children }: { when: string; children: React.ReactNode }) =>
     ((when === "signed-in") === Boolean(auth.user)) ? children : null,
   SignInButton: ({ children }: { children: React.ReactNode }) => children,
@@ -21,7 +22,13 @@ const fetchMock = vi.fn();
 beforeEach(() => {
   clearJobCache();
   auth.user = { id: "user_a" };
-  vi.stubGlobal("fetch", fetchMock);
+  vi.stubGlobal("matchMedia", (query: string) => ({ matches: false, media: query,
+    addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn() }));
+  vi.stubGlobal("fetch", (url: string, options?: RequestInit) => {
+    if (url === "/api/feature-flags") return Promise.resolve(Response.json({ tiltCards: true }));
+    if (url.startsWith("/api/jobs/likes?")) return Promise.resolve(Response.json([]));
+    return fetchMock(url, options);
+  });
   fetchMock.mockReset();
   fetchMock.mockImplementation(async () => Response.json([]));
 });

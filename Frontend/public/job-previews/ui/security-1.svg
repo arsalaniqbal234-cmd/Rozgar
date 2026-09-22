@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Sentinel Secure interface preview</title>
+  <desc id="desc">Illustrative fictional security application interface; not a screenshot of an employer product.</desc>
+  <style>
+    /* Edit these palette tokens to restyle this sample. Geometry lives in LAYOUT in the generator. */
+    svg { --bg:#e7edf1; --bg2:#f6f9fa; --ink:#283d49; --muted:#82949e; --accent:#5c8291; --accent-soft:#e8f1f4; --border:#dae5e9; --surface:#ffffff; --line:#dae5e9; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  </style>
+  <defs>
+    <linearGradient id="backdrop" x2="1" y2="1"><stop stop-color="var(--bg)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <linearGradient id="panel" x2="0" y2="1"><stop stop-color="var(--surface)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <filter id="windowShadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="23" flood-color="var(--ink)" flood-opacity=".14"/></filter>
+    <filter id="cardShadow" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="var(--ink)" flood-opacity=".07"/></filter>
+    <clipPath id="windowClip"><rect x="60" y="44" width="840" height="452" rx="18"/></clipPath>
+  </defs>
+  <rect width="960" height="540" fill="url(#backdrop)"/>
+  <circle cx="858" cy="75" r="188" fill="var(--surface)" opacity=".26"/>
+  <circle cx="80" cy="517" r="169" fill="var(--accent)" opacity=".045"/>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="var(--surface)" filter="url(#windowShadow)"/>
+  <g clip-path="url(#windowClip)">
+    <rect x="60" y="44" width="840" height="44" fill="var(--surface)"/>
+    <path d="M60 88H900" stroke="var(--border)"/>
+    <circle cx="84" cy="66" r="5" fill="#ed9c9c"/><circle cx="101" cy="66" r="5" fill="#e8c27d"/><circle cx="118" cy="66" r="5" fill="#9cc9ad"/>
+    <text x="148" y="71" fill="var(--ink)" font-size="12" font-weight="700" >Sentinel Secure</text>
+    <text x="837" y="71" fill="var(--muted)" font-size="11" font-weight="500" text-anchor="end">Security workspace</text>
+
+
+    <rect x="60" y="88" width="176" height="408" rx="0" fill="#fafbfc" />
+    <path d="M236 88v408" stroke="var(--border)"/>
+    <rect x="80" y="108" width="30" height="30" rx="8" fill="var(--accent)" />
+    <text x="95" y="129" fill="#ffffff" font-size="16" font-weight="750" text-anchor="middle">S</text>
+    <text x="119" y="128" fill="var(--ink)" font-size="14" font-weight="750" >Sentinel</text>
+    <text x="84" y="183" fill="var(--muted)" font-size="9" font-weight="700" letter-spacing="1.4">SECURITY</text>
+    <rect x="75" y="198" width="150" height="35" rx="7" fill="var(--accent-soft)" /><text x="95" y="222" fill="var(--accent)" font-size="11" font-weight="700" >▦  Overview</text><text x="95" y="263" fill="var(--muted)" font-size="11" font-weight="500" >▤  Projects</text><text x="95" y="304" fill="var(--muted)" font-size="11" font-weight="500" >▥  Reports</text><text x="95" y="345" fill="var(--muted)" font-size="11" font-weight="500" >⚙  Settings</text>
+    <rect x="77" y="422" width="146" height="50" rx="8" fill="var(--accent-soft)" />
+    <text x="91" y="442" fill="var(--ink)" font-size="10" font-weight="700" >Workspace</text>
+    <text x="91" y="457" fill="var(--muted)" font-size="9" font-weight="500" >All systems ready</text>
+
+    <rect x="236" y="88" width="664" height="408" rx="0" fill="#fcfdfd" />
+    <text x="271" y="135" fill="var(--ink)" font-size="21" font-weight="750" >Security overview</text>
+    <text x="271" y="157" fill="var(--muted)" font-size="11" font-weight="500" >Your team, work and progress in one place.</text>
+    <rect x="754" y="110" width="112" height="30" rx="15" fill="var(--accent)" />
+    <text x="810" y="130" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">+ New item</text>
+    <rect x="271" y="178" width="193" height="57" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="288" y="198" fill="var(--muted)" font-size="10" font-weight="650" >security score</text>
+    <text x="288" y="225" fill="var(--ink)" font-size="21" font-weight="750" >98.6</text>
+    <rect x="480" y="178" width="197" height="57" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="497" y="198" fill="var(--muted)" font-size="10" font-weight="650" >Active alerts</text>
+    <text x="497" y="225" fill="var(--ink)" font-size="21" font-weight="750" >03</text>
+
+
+    <rect x="272" y="237" width="405" height="54" rx="9" fill="var(--surface)" stroke="var(--border)"/>
+    <rect x="287" y="250" width="27" height="27" rx="7" fill="var(--accent-soft)" />
+    <text x="300" y="269" fill="var(--accent)" font-size="13" font-weight="700" text-anchor="middle">✓</text>
+    <text x="329" y="258" fill="var(--ink)" font-size="11" font-weight="700" >Login anomaly · triaged</text>
+    <rect x="329" y="270" width="93" height="5" rx="2.5" fill="var(--line)" />
+    <rect x="593" y="252" width="68" height="22" rx="11" fill="var(--accent-soft)" />
+    <text x="627" y="267" fill="var(--accent)" font-size="9" font-weight="700" text-anchor="middle">On track</text>
+
+
+
+    <rect x="272" y="302" width="405" height="54" rx="9" fill="var(--surface)" stroke="var(--border)"/>
+    <rect x="287" y="315" width="27" height="27" rx="7" fill="var(--accent-soft)" />
+    <text x="300" y="334" fill="var(--accent)" font-size="13" font-weight="700" text-anchor="middle">✓</text>
+    <text x="329" y="323" fill="var(--ink)" font-size="11" font-weight="700" >Endpoint scan · clean</text>
+    <rect x="329" y="335" width="113" height="5" rx="2.5" fill="var(--line)" />
+    <rect x="593" y="317" width="68" height="22" rx="11" fill="var(--accent-soft)" />
+    <text x="627" y="332" fill="var(--accent)" font-size="9" font-weight="700" text-anchor="middle">In review</text>
+
+
+
+    <rect x="272" y="367" width="405" height="54" rx="9" fill="var(--surface)" stroke="var(--border)"/>
+    <rect x="287" y="380" width="27" height="27" rx="7" fill="var(--accent-soft)" />
+    <text x="300" y="399" fill="var(--accent)" font-size="13" font-weight="700" text-anchor="middle">✓</text>
+    <text x="329" y="388" fill="var(--ink)" font-size="11" font-weight="700" >Policy check · complete</text>
+    <rect x="329" y="400" width="133" height="5" rx="2.5" fill="var(--line)" />
+    <rect x="593" y="382" width="68" height="22" rx="11" fill="var(--accent-soft)" />
+    <text x="627" y="397" fill="var(--accent)" font-size="9" font-weight="700" text-anchor="middle">Complete</text>
+
+
+    <rect x="698" y="178" width="169" height="254" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="716" y="207" fill="var(--muted)" font-size="10" font-weight="700" letter-spacing="1.2">TEAM PULSE</text>
+    <circle cx="730" cy="245" r="16" fill="var(--accent-soft)"/><text x="730" y="249" fill="var(--ink)" font-size="10" font-weight="700" text-anchor="middle">AM</text>
+    <circle cx="765" cy="245" r="16" fill="#eee6e2"/><text x="765" y="249" fill="var(--ink)" font-size="10" font-weight="700" text-anchor="middle">JR</text>
+    <circle cx="800" cy="245" r="16" fill="#e6e8f1"/><text x="800" y="249" fill="var(--ink)" font-size="10" font-weight="700" text-anchor="middle">SK</text>
+    <text x="716" y="288" fill="var(--ink)" font-size="11" font-weight="700" >This week</text>
+    <rect x="716" y="312" width="7" height="7" rx="4" fill="var(--accent)" /><text x="731" y="320" fill="var(--ink)" font-size="10" font-weight="550" >24 systems monitored</text><rect x="716" y="354" width="7" height="7" rx="4" fill="var(--accent)" /><text x="731" y="362" fill="var(--ink)" font-size="10" font-weight="550" >Last scan 3 min ago</text>
+    <rect x="716" y="390" width="132" height="25" rx="7" fill="var(--accent-soft)" />
+    <text x="782" y="407" fill="var(--accent)" font-size="9" font-weight="700" text-anchor="middle">Open workspace →</text>
+
+
+
+  </g>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="none" stroke="var(--border)"/>
+</svg>

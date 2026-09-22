@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Forma Design interface preview</title>
+  <desc id="desc">Illustrative fictional design application interface; not a screenshot of an employer product.</desc>
+  <style>
+    /* Edit these palette tokens to restyle this sample. Geometry lives in LAYOUT in the generator. */
+    svg { --bg:#f0e9f5; --bg2:#faf6fb; --ink:#383043; --muted:#8d8298; --accent:#8668a0; --accent-soft:#f0e9f5; --border:#e5dfe8; --surface:#ffffff; --line:#e5dfe8; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+
+    /* One six-second loop; the host unmounts this document on card leave. */
+    .motion-pointer{animation:pointerRoute 6s ease-in-out infinite;filter:drop-shadow(0 3px 4px #151c3760)}.motion-tap{animation:pointerTap 6s ease-out infinite;transform-origin:2px 2px}@keyframes pointerRoute{0%{transform:translate(782px,407px)}23%{transform:translate(174px,196px)}56%,76%{transform:translate(565px,286px)}100%{transform:translate(782px,407px)}}@keyframes pointerTap{0%,52%,60%,100%{opacity:0;transform:scale(.4)}56%{opacity:.8;transform:scale(1.5)}59%{opacity:0;transform:scale(2)}}.motion-layer-1{animation:row1 6s ease-out infinite}@keyframes row1{0%,8%{opacity:.32;transform:translateY(5px)}16%,91%{opacity:1;transform:translateY(0)}100%{opacity:.32;transform:translateY(5px)}}.motion-layer-2{animation:row2 6s ease-out infinite}@keyframes row2{0%,21%{opacity:.32;transform:translateY(5px)}29%,91%{opacity:1;transform:translateY(0)}100%{opacity:.32;transform:translateY(5px)}}.motion-layer-3{animation:row3 6s ease-out infinite}@keyframes row3{0%,34%{opacity:.32;transform:translateY(5px)}42%,91%{opacity:1;transform:translateY(0)}100%{opacity:.32;transform:translateY(5px)}}.motion-swatch{animation:swatchIn 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.motion-swatch-2{animation-delay:-.4s}@keyframes swatchIn{0%,12%{opacity:.2;transform:scale(.82)}23%,91%{opacity:1;transform:scale(1)}100%{opacity:.2;transform:scale(.82)}}.motion-art{animation:artFloat 6s ease-in-out infinite}@keyframes artFloat{0%,100%{transform:translateY(5px)}45%,78%{transform:translateY(-4px)}}
+    @media(prefers-reduced-motion:reduce){.motion-pointer,.motion-tap{display:none}.motion-row,.motion-layer,.motion-swatch,.motion-art,.motion-line,.motion-area,.motion-bar,.motion-dot,.motion-fill,.motion-kpi,.motion-calendar,.motion-trace,.motion-scan{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
+  </style>
+  <defs>
+    <linearGradient id="backdrop" x2="1" y2="1"><stop stop-color="var(--bg)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <linearGradient id="panel" x2="0" y2="1"><stop stop-color="var(--surface)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <filter id="windowShadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="23" flood-color="var(--ink)" flood-opacity=".14"/></filter>
+    <filter id="cardShadow" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="var(--ink)" flood-opacity=".07"/></filter>
+    <clipPath id="windowClip"><rect x="60" y="44" width="840" height="452" rx="18"/></clipPath>
+  </defs>
+  <rect width="960" height="540" fill="url(#backdrop)"/>
+  <circle cx="858" cy="75" r="188" fill="var(--surface)" opacity=".26"/>
+  <circle cx="80" cy="517" r="169" fill="var(--accent)" opacity=".045"/>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="var(--surface)" filter="url(#windowShadow)"/>
+  <g clip-path="url(#windowClip)">
+    <rect x="60" y="44" width="840" height="44" fill="var(--surface)"/>
+    <path d="M60 88H900" stroke="var(--border)"/>
+    <circle cx="84" cy="66" r="5" fill="#ed9c9c"/><circle cx="101" cy="66" r="5" fill="#e8c27d"/><circle cx="118" cy="66" r="5" fill="#9cc9ad"/>
+    <text x="148" y="71" fill="var(--ink)" font-size="12" font-weight="700" >Forma Design</text>
+    <text x="837" y="71" fill="var(--muted)" font-size="11" font-weight="500" text-anchor="end">Untitled / landing</text>
+
+    <rect x="60" y="88" width="166" height="408" rx="0" fill="#faf8fc" />
+    <path d="M226 88v408" stroke="var(--border)"/>
+    <text x="82" y="125" fill="var(--muted)" font-size="10" font-weight="700" letter-spacing="1.8">LAYERS</text>
+    <text x="83" y="163" fill="var(--ink)" font-size="12" font-weight="650" >⌄  Landing page</text>
+    <g class="motion-layer motion-layer-1"><rect x="72" y="181" width="143" height="31" rx="6" fill="var(--accent-soft)" />
+    <text x="98" y="201" fill="var(--accent)" font-size="11" font-weight="700" >▣  Hero section</text>
+    </g><g class="motion-layer motion-layer-2"><text x="99" y="235" fill="var(--muted)" font-size="11" font-weight="500" >▧  Navigation</text></g><g class="motion-layer motion-layer-3">
+    <text x="99" y="266" fill="var(--muted)" font-size="11" font-weight="500" >▧  Feature cards</text></g>
+    <text x="84" y="310" fill="var(--muted)" font-size="10" font-weight="700" letter-spacing="1.8">ASSETS</text>
+    <g class="motion-swatch motion-swatch-1"><rect x="85" y="326" width="52" height="49" rx="7" fill="#d9d3e5" /></g><g class="motion-swatch motion-swatch-2"><rect x="148" y="326" width="52" height="49" rx="7" fill="#e7cbbf" /></g>
+    <rect x="226" y="88" width="504" height="408" rx="0" fill="#e9e6ed" />
+    <rect x="283" y="130" width="393" height="321" rx="11" fill="var(--surface)" filter="url(#cardShadow)"/>
+    <text x="306" y="157" fill="var(--ink)" font-size="17" font-weight="800" >forma</text>
+    <text x="576" y="155" fill="var(--muted)" font-size="8" font-weight="600" >Work     Studio     About</text>
+    <rect x="306" y="181" width="346" height="245" rx="8" fill="#f6f0eb" />
+    <text x="325" y="220" fill="var(--ink)" font-size="25" font-weight="750" >A calmer way</text>
+    <text x="325" y="249" fill="var(--ink)" font-size="25" font-weight="750" >to create.</text>
+    <rect x="325" y="273" width="132" height="6" rx="3" fill="#d9cbc3" /><rect x="325" y="286" width="105" height="6" rx="3" fill="#d9cbc3" />
+    <rect x="325" y="313" width="92" height="30" rx="15" fill="var(--accent)" />
+    <text x="371" y="332" fill="#ffffff" font-size="9" font-weight="700" text-anchor="middle">Explore work</text>
+    <g class="motion-art"><rect x="492" y="211" width="130" height="154" rx="15" fill="#e6dce9" transform="rotate(7 557 288)" filter="url(#cardShadow)"/>
+    <rect x="509" y="224" width="111" height="133" rx="13" fill="#a88cba" transform="rotate(-6 564 291)" filter="url(#cardShadow)"/>
+    <circle cx="565" cy="282" r="33" fill="#e8d6ca"/><path d="M531 339c10-34 60-40 71 0" fill="#594e62"/></g>
+    <rect x="730" y="88" width="170" height="408" rx="0" fill="#faf8fc" />
+    <path d="M730 88v408" stroke="var(--border)"/>
+    <text x="750" y="125" fill="var(--muted)" font-size="10" font-weight="700" letter-spacing="1.8">PROPERTIES</text>
+    <text x="751" y="163" fill="var(--ink)" font-size="12" font-weight="700" >Hero section</text>
+    <text x="751" y="198" fill="var(--muted)" font-size="10" font-weight="650" >Layout</text>
+    <rect x="751" y="210" width="57" height="28" rx="5" fill="var(--surface)" stroke="var(--border)"/>
+    <rect x="818" y="210" width="57" height="28" rx="5" fill="var(--surface)" stroke="var(--border)"/>
+    <text x="779" y="228" fill="var(--ink)" font-size="10" font-weight="600" text-anchor="middle">393</text>
+    <text x="846" y="228" fill="var(--ink)" font-size="10" font-weight="600" text-anchor="middle">321</text>
+    <text x="751" y="273" fill="var(--muted)" font-size="10" font-weight="650" >Palette</text>
+    <circle cx="762" cy="296" r="11" fill="#8668a0"/><circle cx="793" cy="296" r="11" fill="#e7cbbf"/><circle cx="824" cy="296" r="11" fill="#594e62"/><circle cx="855" cy="296" r="11" fill="#f6f0eb"/>
+    <text x="751" y="349" fill="var(--muted)" font-size="10" font-weight="650" >Typography</text>
+    <rect x="751" y="367" width="111" height="8" rx="4" fill="#d6d0dc" /><rect x="751" y="385" width="78" height="7" rx="3.5" fill="#ded9e2" />
+    <g class="motion-pointer"><path d="M0 0v25l7-7 6 13 5-2-6-13h12Z" fill="#fff" stroke="#283044" stroke-width="2" stroke-linejoin="round"/><circle class="motion-tap" cx="2" cy="2" r="10" fill="none" stroke="#fff" stroke-width="2"/></g>
+
+  </g>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="none" stroke="var(--border)"/>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Abstract illustration of focused work">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#123e36"/><stop offset="1" stop-color="#276754"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8eee4"/><stop offset="1" stop-color="#acd8c1"/></linearGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#d5e8db" opacity=".17"/></pattern>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <rect width="960" height="540" fill="url(#dots)"/>
+  <circle cx="838" cy="90" r="160" fill="#e5d594" opacity=".13"/>
+  <circle cx="85" cy="483" r="190" fill="#84b899" opacity=".12"/>
+  <path d="M0 428 Q390 360 960 438V540H0Z" fill="#0b302c" opacity=".5"/>
+  <g transform="translate(155 72)">
+    <rect x="88" y="42" width="600" height="356" rx="27" fill="#092d2b" opacity=".42"/>
+    <rect x="72" y="25" width="600" height="356" rx="27" fill="#e8e8ce"/>
+    <rect x="90" y="43" width="564" height="320" rx="15" fill="url(#screen)"/>
+    <rect x="122" y="77" width="194" height="15" rx="7.5" fill="#174d3d" opacity=".85"/>
+    <rect x="122" y="106" width="125" height="10" rx="5" fill="#6eac85"/>
+    <rect x="122" y="157" width="250" height="158" rx="16" fill="#f7f5dc"/>
+    <path d="M148 272l47-42 45 27 42-61 62 32" fill="none" stroke="#39846b" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="344" cy="228" r="10" fill="#e0b958"/>
+    <rect x="404" y="157" width="212" height="158" rx="16" fill="#245c4a"/>
+    <rect x="434" y="259" width="25" height="31" rx="6" fill="#a6d7b9"/>
+    <rect x="471" y="219" width="25" height="71" rx="6" fill="#d9c16f"/>
+    <rect x="508" y="237" width="25" height="53" rx="6" fill="#79b99a"/>
+    <rect x="545" y="189" width="25" height="101" rx="6" fill="#e9e7cb"/>
+    <path d="M31 388h684l-69 24H101Z" fill="#d9ddc3"/>
+  </g>
+  <circle cx="755" cy="88" r="14" fill="#e5cf7e"/>
+  <circle cx="790" cy="88" r="6" fill="#e5cf7e" opacity=".5"/>
+</svg>

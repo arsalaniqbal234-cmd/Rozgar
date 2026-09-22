@@ -5,6 +5,7 @@ import { ArrowUpRight, Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api, SavedSearch } from "../../lib/api";
 import { emailAlertsEnabled } from "../../lib/features";
+import { savedSearchHref } from "../../lib/search-url";
 
 export default function SavedSearchesPage() {
   const { isSignedIn, getToken, userId } = useAuth();
@@ -19,9 +20,12 @@ export default function SavedSearchesPage() {
   useEffect(() => {
     if (!isSignedIn) return;
     const controller = new AbortController();
-    getToken().then(token => api<SavedSearch[]>("/saved-searches", {
-      headers: { Authorization: `Bearer ${token}` }, signal: controller.signal,
-    })).then(data => { if (!controller.signal.aborted) { setOwner(userId || null); setItems(data); setError(""); setLoadedKey(requestKey); } })
+    getToken().then(token => {
+      if (!token) throw new Error("Please sign in again.");
+      return api<SavedSearch[]>("/saved-searches", {
+        headers: { Authorization: `Bearer ${token}` }, signal: controller.signal,
+      });
+    }).then(data => { if (!controller.signal.aborted) { setOwner(userId || null); setItems(data); setError(""); setLoadedKey(requestKey); } })
       .catch(error => { if (!controller.signal.aborted) { setOwner(userId || null); setError(error.message); setLoadedKey(requestKey); } });
     return () => controller.abort();
   }, [isSignedIn, getToken, userId, requestKey]);
@@ -30,6 +34,7 @@ export default function SavedSearchesPage() {
     setBusy(id);
     try {
       const token = await getToken();
+      if (!token) throw new Error("Please sign in again.");
       await api(`/saved-searches/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       setItems(previous => previous.filter(item => item.id !== id));
       setError("");
@@ -49,13 +54,19 @@ export default function SavedSearchesPage() {
       <div className="space-y-4">{(loaded && owner === userId && !error ? items : []).map(item => <article key={item.id} className="panel flex flex-wrap items-center justify-between gap-4">
         <div><h2 className="text-lg font-bold">{item.keywords}</h2>
           <p className="mt-2 text-sm text-slate-400">{item.location || "Any location"}
-            {item.min_salary ? ` · USD ${item.min_salary.toLocaleString()}+ annually` : ""}
+            {item.min_salary ? ` · ${item.filters?.salary_currency || "USD"} ${item.min_salary.toLocaleString()}+ ${item.filters?.salary_period || "annual"}` : ""}
             {item.filters?.remote_only ? " · Remote only" : ""}
             {item.filters?.salary_only ? " · Salary listed" : ""}</p>
           <p className="mt-2 text-xs text-slate-500">{item.last_notified_at ? "Last alert: " + new Date(item.last_notified_at).toLocaleString() : emailAlertsEnabled ? "Waiting for new matches" : "Email alerts paused"}</p>
         </div>
-        <button className="tag text-rose-300" disabled={busy === item.id} onClick={() => void remove(item.id)}
-          aria-label={`Delete search ${item.keywords}`}>{busy === item.id ? "Deleting…" : "Delete"}</button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href={savedSearchHref(item)} className="button transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0"
+            aria-label={`View current results for ${item.keywords}`}>
+            View results <ArrowUpRight size={16} aria-hidden />
+          </Link>
+          <button className="tag text-rose-300" disabled={busy === item.id} onClick={() => void remove(item.id)}
+            aria-label={`Delete search ${item.keywords}`}>{busy === item.id ? "Deleting…" : "Delete"}</button>
+        </div>
       </article>)}</div>
     </Show>
   </main>;

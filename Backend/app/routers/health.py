@@ -10,7 +10,7 @@ from app import cache
 from app.alerts import delivery_counts
 from app.auth import admin_user
 from app.config import integer_env
-from app.models import Job, ScrapeRun
+from app.models import CompanyAlertDelivery, CompanyFollow, Job, ScrapeRun
 from app.scrapers import AVAILABLE_SCRAPERS
 from database import get_db
 
@@ -28,6 +28,8 @@ def ready(db: Session = Depends(get_db)):
         db.execute(text("SELECT 1"))
         # Check application schema as well as connectivity.
         db.query(Job.id).limit(1).all()
+        db.query(CompanyFollow.id).limit(1).all()
+        db.query(CompanyAlertDelivery.id).limit(1).all()
         database_status = "ok"
     except Exception:
         db.rollback()

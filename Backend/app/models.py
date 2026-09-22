@@ -30,6 +30,13 @@ class JobSource(Base):
     fetched_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
+class JobLike(Base):
+    __tablename__ = "job_likes"
+    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), primary_key=True)
+    user_id = Column(String, primary_key=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
 class SavedSearch(Base):
     __tablename__ = "saved_searches"
     id = Column(Integer, primary_key=True, index=True)
@@ -44,6 +51,35 @@ class SavedSearch(Base):
     last_notified_at = Column(DateTime(timezone=True))
     signature = Column(String(64))
     __table_args__ = (UniqueConstraint("user_id", "signature", name="uq_saved_search_signature"),)
+
+
+class CompanyFollow(Base):
+    __tablename__ = "company_follows"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, nullable=False, index=True)
+    company_name = Column(String(200), nullable=False)
+    company_key = Column(String(200), nullable=False, index=True)
+    email = Column(String, nullable=False)
+    followed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True, server_default="true")
+    last_notified_at = Column(DateTime(timezone=True))
+    __table_args__ = (UniqueConstraint("user_id", "company_key", name="uq_company_follow_user_key"),)
+
+
+class CompanyAlertDelivery(Base):
+    __tablename__ = "company_alert_deliveries"
+    id = Column(Integer, primary_key=True)
+    follow_id = Column(Integer, ForeignKey("company_follows.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False)
+    status = Column(String(20), nullable=False, default="pending")
+    payload = Column(JSON, nullable=False)
+    attempts = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    first_attempt_at = Column(DateTime(timezone=True))
+    next_attempt_at = Column(DateTime(timezone=True))
+    sent_at = Column(DateTime(timezone=True))
+    provider_id = Column(String)
+    __table_args__ = (UniqueConstraint("follow_id", "job_id", name="uq_company_alert_follow_job"),)
 
 
 class AlertDelivery(Base):

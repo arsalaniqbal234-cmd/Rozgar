@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Northstar Studio interface preview</title>
+  <desc id="desc">Illustrative fictional engineering application interface; not a screenshot of an employer product.</desc>
+  <style>
+    /* Edit these palette tokens to restyle this sample. Geometry lives in LAYOUT in the generator. */
+    svg { --bg:#e7ebf7; --bg2:#f5f6fc; --ink:#242943; --muted:#7c8298; --accent:#6968b9; --accent-soft:#ecebfa; --border:#dce0eb; --surface:#ffffff; --line:#dce0eb; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  </style>
+  <defs>
+    <linearGradient id="backdrop" x2="1" y2="1"><stop stop-color="var(--bg)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <linearGradient id="panel" x2="0" y2="1"><stop stop-color="var(--surface)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <filter id="windowShadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="23" flood-color="var(--ink)" flood-opacity=".14"/></filter>
+    <filter id="cardShadow" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="var(--ink)" flood-opacity=".07"/></filter>
+    <clipPath id="windowClip"><rect x="60" y="44" width="840" height="452" rx="18"/></clipPath>
+  </defs>
+  <rect width="960" height="540" fill="url(#backdrop)"/>
+  <circle cx="858" cy="75" r="188" fill="var(--surface)" opacity=".26"/>
+  <circle cx="80" cy="517" r="169" fill="var(--accent)" opacity=".045"/>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="var(--surface)" filter="url(#windowShadow)"/>
+  <g clip-path="url(#windowClip)">
+    <rect x="60" y="44" width="840" height="44" fill="var(--surface)"/>
+    <path d="M60 88H900" stroke="var(--border)"/>
+    <circle cx="84" cy="66" r="5" fill="#ed9c9c"/><circle cx="101" cy="66" r="5" fill="#e8c27d"/><circle cx="118" cy="66" r="5" fill="#9cc9ad"/>
+    <text x="148" y="71" fill="var(--ink)" font-size="12" font-weight="700" >Northstar Studio</text>
+    <text x="837" y="71" fill="var(--muted)" font-size="11" font-weight="500" text-anchor="end">Engineering workspace</text>
+
+    <rect x="60" y="88" width="170" height="408" rx="0" fill="#f7f8fc" />
+    <path d="M230 88v408" stroke="var(--border)"/>
+    <text x="85" y="126" fill="var(--muted)" font-size="10" font-weight="700" letter-spacing="1.8">EXPLORER</text>
+    <text x="86" y="162" fill="var(--ink)" font-size="12" font-weight="600" >▾  src</text>
+    <text x="103" y="191" fill="var(--muted)" font-size="11" font-weight="500" >◇  components</text>
+    <rect x="72" y="206" width="148" height="31" rx="6" fill="var(--accent-soft)" />
+    <text x="103" y="226" fill="var(--accent)" font-size="11" font-weight="700" >▣  JobBoard.tsx</text>
+    <text x="103" y="259" fill="var(--muted)" font-size="11" font-weight="500" >◇  api.ts</text>
+    <text x="86" y="304" fill="var(--ink)" font-size="12" font-weight="600" >▾  public</text>
+    <text x="103" y="332" fill="var(--muted)" font-size="11" font-weight="500" >▧  assets</text>
+    <rect x="230" y="88" width="670" height="35" rx="0" fill="#fbfbfd" />
+    <rect x="244" y="96" width="144" height="27" rx="5" fill="var(--surface)" />
+    <text x="263" y="115" fill="var(--ink)" font-size="11" font-weight="600" >JobBoard.tsx</text>
+    <text x="857" y="111" fill="var(--muted)" font-size="11" font-weight="500" text-anchor="end">⌘  K</text>
+    <rect x="230" y="123" width="670" height="259" rx="0" fill="#252b3e" />
+    <rect x="230" y="123" width="48" height="259" rx="0" fill="#202638" />
+    <text x="250" y="184" fill="#a2a9bb" font-size="12" font-weight="400" >01</text><text x="290" y="184" fill="#a78ad1" font-size="13" font-weight="500" >import</text><text x="333.2" y="184" fill="#dce4f6" font-size="13" font-weight="400" > { useJobs } </text><text x="426.8" y="184" fill="#8bcac0" font-size="13" font-weight="500" >from</text><text x="455.6" y="184" fill="#e7c48d" font-size="13" font-weight="400" > '@work/api'</text><text x="250" y="212" fill="#a2a9bb" font-size="12" font-weight="400" >02</text><text x="290" y="212" fill="#a78ad1" font-size="13" font-weight="500" >export</text><text x="333.2" y="212" fill="#dce4f6" font-size="13" font-weight="400" > function </text><text x="405.2" y="212" fill="#8bcac0" font-size="13" font-weight="500" >JobBoard</text><text x="462.8" y="212" fill="#e7c48d" font-size="13" font-weight="400" >() {</text><text x="250" y="240" fill="#a2a9bb" font-size="12" font-weight="400" >03</text><text x="290" y="240" fill="#a78ad1" font-size="13" font-weight="500" >  const </text><text x="347.6" y="240" fill="#dce4f6" font-size="13" font-weight="400" >{ jobs, loading }</text><text x="470" y="240" fill="#8bcac0" font-size="13" font-weight="500" > = </text><text x="491.6" y="240" fill="#e7c48d" font-size="13" font-weight="400" >useJobs()</text><text x="250" y="268" fill="#a2a9bb" font-size="12" font-weight="400" >04</text><text x="290" y="268" fill="#a78ad1" font-size="13" font-weight="500" >  return</text><text x="347.6" y="268" fill="#dce4f6" font-size="13" font-weight="400" > jobs.map(job => (</text><text x="477.20000000000005" y="268" fill="#8bcac0" font-size="13" font-weight="500" ></text><text x="477.20000000000005" y="268" fill="#e7c48d" font-size="13" font-weight="400" ></text><text x="250" y="296" fill="#a2a9bb" font-size="12" font-weight="400" >05</text><text x="290" y="296" fill="#a78ad1" font-size="13" font-weight="500" >    &lt;Card </text><text x="383.6" y="296" fill="#dce4f6" font-size="13" font-weight="400" >key={job.id}</text><text x="470" y="296" fill="#8bcac0" font-size="13" font-weight="500" > </text><text x="477.20000000000005" y="296" fill="#e7c48d" font-size="13" font-weight="400" >job={job}</text><text x="250" y="324" fill="#a2a9bb" font-size="12" font-weight="400" >06</text><text x="290" y="324" fill="#a78ad1" font-size="13" font-weight="500" >  ))</text><text x="318.8" y="324" fill="#dce4f6" font-size="13" font-weight="400" ></text><text x="318.8" y="324" fill="#8bcac0" font-size="13" font-weight="500" ></text><text x="318.8" y="324" fill="#e7c48d" font-size="13" font-weight="400" ></text>
+    <rect x="230" y="382" width="670" height="114" rx="0" fill="#f9fafc" />
+    <path d="M230 382h670" stroke="var(--border)"/>
+    <text x="253" y="407" fill="var(--accent)" font-size="10" font-weight="700" letter-spacing="1.5">TERMINAL</text>
+    <text x="253" y="433" fill="#518a78" font-size="12" font-weight="600" >✓  Compiled successfully in 842ms</text>
+    <text x="253" y="456" fill="var(--muted)" font-size="11" font-weight="500" >local: http://localhost:3000</text>
+    <rect x="740" y="397" width="125" height="26" rx="13" fill="var(--accent-soft)" />
+    <text x="802" y="414" fill="var(--accent)" font-size="10" font-weight="700" text-anchor="middle">All checks passed</text>
+
+
+  </g>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="none" stroke="var(--border)"/>
+</svg>

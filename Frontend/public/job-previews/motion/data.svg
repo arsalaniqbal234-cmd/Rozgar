@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Meridian Analytics interface preview</title>
+  <desc id="desc">Illustrative fictional data application interface; not a screenshot of an employer product.</desc>
+  <style>
+    /* Edit these palette tokens to restyle this sample. Geometry lives in LAYOUT in the generator. */
+    svg { --bg:#e7eef6; --bg2:#f6f9fc; --ink:#263f59; --muted:#8394a5; --accent:#5e85ad; --accent-soft:#e8f1fa; --border:#dce6ef; --surface:#ffffff; --line:#dce6ef; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+
+    /* One six-second loop; the host unmounts this document on card leave. */
+    .motion-pointer{animation:pointerRoute 6s ease-in-out infinite;filter:drop-shadow(0 3px 4px #151c3760)}.motion-tap{animation:pointerTap 6s ease-out infinite;transform-origin:2px 2px}@keyframes pointerRoute{0%{transform:translate(782px,407px)}23%{transform:translate(500px,292px)}56%,76%{transform:translate(657px,251px)}100%{transform:translate(782px,407px)}}@keyframes pointerTap{0%,52%,60%,100%{opacity:0;transform:scale(.4)}56%{opacity:.8;transform:scale(1.5)}59%{opacity:0;transform:scale(2)}}.motion-line{stroke-dasharray:600;stroke-dashoffset:600;animation:lineDraw 6s ease-in-out infinite}.motion-area{animation:areaIn 6s ease-in-out infinite}.motion-dot{animation:dotIn 6s ease-in-out infinite}@keyframes lineDraw{0%,8%{stroke-dashoffset:600}72%,91%{stroke-dashoffset:0}100%{stroke-dashoffset:600}}@keyframes areaIn{0%,36%{opacity:0}72%,91%{opacity:.8}100%{opacity:0}}@keyframes dotIn{0%,66%{opacity:0}75%,91%{opacity:1}100%{opacity:0}}.motion-kpi{animation:kpiIn 6s ease-out infinite}@keyframes kpiIn{0%,8%{opacity:.25;transform:translateY(5px)}25%,91%{opacity:1;transform:translateY(0)}100%{opacity:.25;transform:translateY(5px)}}
+    @media(prefers-reduced-motion:reduce){.motion-pointer,.motion-tap{display:none}.motion-row,.motion-layer,.motion-swatch,.motion-art,.motion-line,.motion-area,.motion-bar,.motion-dot,.motion-fill,.motion-kpi,.motion-calendar,.motion-trace,.motion-scan{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
+  </style>
+  <defs>
+    <linearGradient id="backdrop" x2="1" y2="1"><stop stop-color="var(--bg)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <linearGradient id="panel" x2="0" y2="1"><stop stop-color="var(--surface)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <filter id="windowShadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="23" flood-color="var(--ink)" flood-opacity=".14"/></filter>
+    <filter id="cardShadow" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="var(--ink)" flood-opacity=".07"/></filter>
+    <clipPath id="windowClip"><rect x="60" y="44" width="840" height="452" rx="18"/></clipPath>
+  </defs>
+  <rect width="960" height="540" fill="url(#backdrop)"/>
+  <circle cx="858" cy="75" r="188" fill="var(--surface)" opacity=".26"/>
+  <circle cx="80" cy="517" r="169" fill="var(--accent)" opacity=".045"/>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="var(--surface)" filter="url(#windowShadow)"/>
+  <g clip-path="url(#windowClip)">
+    <rect x="60" y="44" width="840" height="44" fill="var(--surface)"/>
+    <path d="M60 88H900" stroke="var(--border)"/>
+    <circle cx="84" cy="66" r="5" fill="#ed9c9c"/><circle cx="101" cy="66" r="5" fill="#e8c27d"/><circle cx="118" cy="66" r="5" fill="#9cc9ad"/>
+    <text x="148" y="71" fill="var(--ink)" font-size="12" font-weight="700" >Meridian Analytics</text>
+    <text x="837" y="71" fill="var(--muted)" font-size="11" font-weight="500" text-anchor="end">Data insights dashboard</text>
+
+
+    <rect x="60" y="88" width="176" height="408" rx="0" fill="#fafbfc" />
+    <path d="M236 88v408" stroke="var(--border)"/>
+    <rect x="80" y="108" width="30" height="30" rx="8" fill="var(--accent)" />
+    <text x="95" y="129" fill="#ffffff" font-size="16" font-weight="750" text-anchor="middle">M</text>
+    <text x="119" y="128" fill="var(--ink)" font-size="14" font-weight="750" >Meridian</text>
+    <text x="84" y="183" fill="var(--muted)" font-size="9" font-weight="700" letter-spacing="1.4">DATA INSIGHTS</text>
+    <rect x="75" y="198" width="150" height="35" rx="7" fill="var(--accent-soft)" /><text x="95" y="222" fill="var(--accent)" font-size="11" font-weight="700" >▦  Overview</text><text x="95" y="263" fill="var(--muted)" font-size="11" font-weight="500" >▤  Projects</text><text x="95" y="304" fill="var(--muted)" font-size="11" font-weight="500" >▥  Reports</text><text x="95" y="345" fill="var(--muted)" font-size="11" font-weight="500" >⚙  Settings</text>
+    <rect x="77" y="422" width="146" height="50" rx="8" fill="var(--accent-soft)" />
+    <text x="91" y="442" fill="var(--ink)" font-size="10" font-weight="700" >Workspace</text>
+    <text x="91" y="457" fill="var(--muted)" font-size="9" font-weight="500" >All systems ready</text>
+
+    <rect x="236" y="88" width="664" height="408" rx="0" fill="#fcfdfd" />
+    <text x="271" y="134" fill="var(--ink)" font-size="21" font-weight="750" >Analytics overview</text>
+    <text x="271" y="156" fill="var(--muted)" font-size="11" font-weight="500" >A clear view of what matters today.</text>
+    <rect x="754" y="110" width="112" height="30" rx="15" fill="var(--accent)" />
+    <text x="810" y="130" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">View report →</text>
+    <rect x="270" y="181" width="412" height="228" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="290" y="208" fill="var(--muted)" font-size="10" font-weight="700" letter-spacing="1.2">EVENTS PROCESSED</text>
+    <g class="motion-kpi"><text x="289" y="248" fill="var(--ink)" font-size="31" font-weight="750" >1.28m</text></g>
+    <rect x="543" y="205" width="115" height="25" rx="13" fill="var(--accent-soft)" />
+    <text x="600" y="222" fill="var(--accent)" font-size="10" font-weight="750" text-anchor="middle">↗  +18.2%</text>
+
+    <path d="M284 360H661M284 330H661M284 300H661M284 270H661" stroke="var(--border)" stroke-dasharray="4 6"/>
+    <path class="motion-area" d="M286 347 C320 338 337 348 371 314 S423 327 458 292 S510 307 550 272 S612 294 656 251 V361 H286Z" fill="var(--accent-soft)" opacity=".8"/>
+    <path class="motion-line" d="M286 347 C320 338 337 348 371 314 S423 327 458 292 S510 307 550 272 S612 294 656 251" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+    <circle class="motion-dot" cx="656" cy="251" r="5" fill="var(--accent)" stroke="#fff" stroke-width="3"/>
+    <text x="286" y="381" fill="var(--muted)" font-size="9" font-weight="500" >MON</text><text x="449" y="381" fill="var(--muted)" font-size="9" font-weight="500" >WED</text><text x="625" y="381" fill="var(--muted)" font-size="9" font-weight="500" >FRI</text>
+
+    <rect x="698" y="181" width="169" height="105" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="716" y="209" fill="var(--muted)" font-size="10" font-weight="650" >Query health</text>
+    <text x="716" y="251" fill="var(--ink)" font-size="26" font-weight="750" >98.4%</text>
+    <rect x="698" y="298" width="169" height="111" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="716" y="324" fill="var(--muted)" font-size="9" font-weight="700" letter-spacing="1.2">AT A GLANCE</text>
+    <rect x="716" y="343" width="7" height="7" rx="4" fill="var(--accent)" /><text x="731" y="351" fill="var(--ink)" font-size="10" font-weight="550" >14 dashboards</text><rect x="716" y="372" width="7" height="7" rx="4" fill="var(--accent)" /><text x="731" y="380" fill="var(--ink)" font-size="10" font-weight="550" >Data fresh 2 min ago</text>
+    <text x="271" y="446" fill="var(--muted)" font-size="10" font-weight="500" >Updated just now</text>
+    <g class="motion-pointer"><path d="M0 0v25l7-7 6 13 5-2-6-13h12Z" fill="#fff" stroke="#283044" stroke-width="2" stroke-linejoin="round"/><circle class="motion-tap" cx="2" cy="2" r="10" fill="none" stroke="#fff" stroke-width="2"/></g>
+
+  </g>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="none" stroke="var(--border)"/>
+</svg>

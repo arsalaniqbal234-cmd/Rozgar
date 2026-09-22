@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Atlas Operations interface preview</title>
+  <desc id="desc">Illustrative fictional operations application interface; not a screenshot of an employer product.</desc>
+  <style>
+    /* Edit these palette tokens to restyle this sample. Geometry lives in LAYOUT in the generator. */
+    svg { --bg:#f1ece5; --bg2:#fbf9f6; --ink:#514437; --muted:#9c8f80; --accent:#9b8061; --accent-soft:#f7efe6; --border:#eae2d8; --surface:#ffffff; --line:#eae2d8; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+
+    /* One six-second loop; the host unmounts this document on card leave. */
+    .motion-pointer{animation:pointerRoute 6s ease-in-out infinite;filter:drop-shadow(0 3px 4px #151c3760)}.motion-tap{animation:pointerTap 6s ease-out infinite;transform-origin:2px 2px}@keyframes pointerRoute{0%{transform:translate(782px,407px)}23%{transform:translate(389px,265px)}56%,76%{transform:translate(616px,328px)}100%{transform:translate(782px,407px)}}@keyframes pointerTap{0%,52%,60%,100%{opacity:0;transform:scale(.4)}56%{opacity:.8;transform:scale(1.5)}59%{opacity:0;transform:scale(2)}}.motion-row-1{animation:row1 6s ease-out infinite}@keyframes row1{0%,8%{opacity:.32;transform:translateY(5px)}16%,91%{opacity:1;transform:translateY(0)}100%{opacity:.32;transform:translateY(5px)}}.motion-row-2{animation:row2 6s ease-out infinite}@keyframes row2{0%,21%{opacity:.32;transform:translateY(5px)}29%,91%{opacity:1;transform:translateY(0)}100%{opacity:.32;transform:translateY(5px)}}.motion-row-3{animation:row3 6s ease-out infinite}@keyframes row3{0%,34%{opacity:.32;transform:translateY(5px)}42%,91%{opacity:1;transform:translateY(0)}100%{opacity:.32;transform:translateY(5px)}}.motion-fill{transform-box:fill-box;transform-origin:left center;animation:fill 6s ease-in-out infinite}@keyframes fill{0%,10%{transform:scaleX(.06)}75%,91%{transform:scaleX(.9)}100%{transform:scaleX(.06)}}
+    @media(prefers-reduced-motion:reduce){.motion-pointer,.motion-tap{display:none}.motion-row,.motion-layer,.motion-swatch,.motion-art,.motion-line,.motion-area,.motion-bar,.motion-dot,.motion-fill,.motion-kpi,.motion-calendar,.motion-trace,.motion-scan{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
+  </style>
+  <defs>
+    <linearGradient id="backdrop" x2="1" y2="1"><stop stop-color="var(--bg)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <linearGradient id="panel" x2="0" y2="1"><stop stop-color="var(--surface)"/><stop offset="1" stop-color="var(--bg2)"/></linearGradient>
+    <filter id="windowShadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="23" flood-color="var(--ink)" flood-opacity=".14"/></filter>
+    <filter id="cardShadow" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="var(--ink)" flood-opacity=".07"/></filter>
+    <clipPath id="windowClip"><rect x="60" y="44" width="840" height="452" rx="18"/></clipPath>
+  </defs>
+  <rect width="960" height="540" fill="url(#backdrop)"/>
+  <circle cx="858" cy="75" r="188" fill="var(--surface)" opacity=".26"/>
+  <circle cx="80" cy="517" r="169" fill="var(--accent)" opacity=".045"/>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="var(--surface)" filter="url(#windowShadow)"/>
+  <g clip-path="url(#windowClip)">
+    <rect x="60" y="44" width="840" height="44" fill="var(--surface)"/>
+    <path d="M60 88H900" stroke="var(--border)"/>
+    <circle cx="84" cy="66" r="5" fill="#ed9c9c"/><circle cx="101" cy="66" r="5" fill="#e8c27d"/><circle cx="118" cy="66" r="5" fill="#9cc9ad"/>
+    <text x="148" y="71" fill="var(--ink)" font-size="12" font-weight="700" >Atlas Operations</text>
+    <text x="837" y="71" fill="var(--muted)" font-size="11" font-weight="500" text-anchor="end">Operations workspace</text>
+
+
+    <rect x="60" y="88" width="176" height="408" rx="0" fill="#fafbfc" />
+    <path d="M236 88v408" stroke="var(--border)"/>
+    <rect x="80" y="108" width="30" height="30" rx="8" fill="var(--accent)" />
+    <text x="95" y="129" fill="#ffffff" font-size="16" font-weight="750" text-anchor="middle">A</text>
+    <text x="119" y="128" fill="var(--ink)" font-size="14" font-weight="750" >Atlas</text>
+    <text x="84" y="183" fill="var(--muted)" font-size="9" font-weight="700" letter-spacing="1.4">OPERATIONS</text>
+    <rect x="75" y="198" width="150" height="35" rx="7" fill="var(--accent-soft)" /><text x="95" y="222" fill="var(--accent)" font-size="11" font-weight="700" >▦  Overview</text><text x="95" y="263" fill="var(--muted)" font-size="11" font-weight="500" >▤  Projects</text><text x="95" y="304" fill="var(--muted)" font-size="11" font-weight="500" >▥  Reports</text><text x="95" y="345" fill="var(--muted)" font-size="11" font-weight="500" >⚙  Settings</text>
+    <rect x="77" y="422" width="146" height="50" rx="8" fill="var(--accent-soft)" />
+    <text x="91" y="442" fill="var(--ink)" font-size="10" font-weight="700" >Workspace</text>
+    <text x="91" y="457" fill="var(--muted)" font-size="9" font-weight="500" >All systems ready</text>
+
+    <rect x="236" y="88" width="664" height="408" rx="0" fill="#fcfdfd" />
+    <text x="271" y="135" fill="var(--ink)" font-size="21" font-weight="750" >Team operations</text>
+    <text x="271" y="157" fill="var(--muted)" font-size="11" font-weight="500" >Your team, work and progress in one place.</text>
+    <rect x="754" y="110" width="112" height="30" rx="15" fill="var(--accent)" />
+    <text x="810" y="130" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">+ New item</text>
+    <rect x="271" y="178" width="193" height="57" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="288" y="198" fill="var(--muted)" font-size="10" font-weight="650" >workflows running</text>
+    <text x="288" y="225" fill="var(--ink)" font-size="21" font-weight="750" >32</text>
+    <rect x="480" y="178" width="197" height="57" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="497" y="198" fill="var(--muted)" font-size="10" font-weight="650" >Service level</text>
+    <text x="497" y="225" fill="var(--ink)" font-size="21" font-weight="750" >96%</text>
+
+    <g class="motion-row motion-row-1">
+    <rect x="272" y="237" width="405" height="54" rx="9" fill="var(--surface)" stroke="var(--border)"/>
+    <rect x="287" y="250" width="27" height="27" rx="7" fill="var(--accent-soft)" />
+    <text x="300" y="269" fill="var(--accent)" font-size="13" font-weight="700" text-anchor="middle">•</text>
+    <text x="329" y="258" fill="var(--ink)" font-size="11" font-weight="700" >Vendor intake · approved</text>
+    <rect x="329" y="270" width="93" height="5" rx="2.5" fill="var(--line)" />
+    <rect x="593" y="252" width="68" height="22" rx="11" fill="var(--accent-soft)" />
+    <text x="627" y="267" fill="var(--accent)" font-size="9" font-weight="700" text-anchor="middle">On track</text>
+    </g>
+
+    <g class="motion-row motion-row-2">
+    <rect x="272" y="302" width="405" height="54" rx="9" fill="var(--surface)" stroke="var(--border)"/>
+    <rect x="287" y="315" width="27" height="27" rx="7" fill="var(--accent-soft)" />
+    <text x="300" y="334" fill="var(--accent)" font-size="13" font-weight="700" text-anchor="middle">•</text>
+    <text x="329" y="323" fill="var(--ink)" font-size="11" font-weight="700" >Office expansion · tracking</text>
+    <rect x="329" y="335" width="113" height="5" rx="2.5" fill="var(--line)" />
+    <rect x="593" y="317" width="68" height="22" rx="11" fill="var(--accent-soft)" />
+    <text x="627" y="332" fill="var(--accent)" font-size="9" font-weight="700" text-anchor="middle">In review</text>
+    </g>
+
+    <g class="motion-row motion-row-3">
+    <rect x="272" y="367" width="405" height="54" rx="9" fill="var(--surface)" stroke="var(--border)"/>
+    <rect x="287" y="380" width="27" height="27" rx="7" fill="var(--accent-soft)" />
+    <text x="300" y="399" fill="var(--accent)" font-size="13" font-weight="700" text-anchor="middle">•</text>
+    <text x="329" y="388" fill="var(--ink)" font-size="11" font-weight="700" >Budget review · in progress</text>
+    <rect x="329" y="400" width="133" height="5" rx="2.5" fill="var(--line)" />
+    <rect x="593" y="382" width="68" height="22" rx="11" fill="var(--accent-soft)" />
+    <text x="627" y="397" fill="var(--accent)" font-size="9" font-weight="700" text-anchor="middle">Complete</text>
+    </g>
+
+    <rect x="698" y="178" width="169" height="254" rx="10" fill="var(--surface)" stroke="var(--border)" filter="url(#cardShadow)"/>
+    <text x="716" y="207" fill="var(--muted)" font-size="10" font-weight="700" letter-spacing="1.2">TEAM PULSE</text>
+    <circle cx="730" cy="245" r="16" fill="var(--accent-soft)"/><text x="730" y="249" fill="var(--ink)" font-size="10" font-weight="700" text-anchor="middle">AM</text>
+    <circle cx="765" cy="245" r="16" fill="#eee6e2"/><text x="765" y="249" fill="var(--ink)" font-size="10" font-weight="700" text-anchor="middle">JR</text>
+    <circle cx="800" cy="245" r="16" fill="#e6e8f1"/><text x="800" y="249" fill="var(--ink)" font-size="10" font-weight="700" text-anchor="middle">SK</text>
+    <text x="716" y="288" fill="var(--ink)" font-size="11" font-weight="700" >This week</text>
+    <rect x="716" y="312" width="7" height="7" rx="4" fill="var(--accent)" /><text x="731" y="320" fill="var(--ink)" font-size="10" font-weight="550" >8 tasks due today</text><rect x="716" y="354" width="7" height="7" rx="4" fill="var(--accent)" /><text x="731" y="362" fill="var(--ink)" font-size="10" font-weight="550" >3 approvals needed</text>
+    <rect x="716" y="390" width="132" height="25" rx="7" fill="var(--accent-soft)" />
+    <text x="782" y="407" fill="var(--accent)" font-size="9" font-weight="700" text-anchor="middle">Open workspace →</text>
+    <text x="272" y="449" fill="var(--muted)" font-size="9" font-weight="700" letter-spacing="1.1">WORKFLOW SYNC</text><rect x="272" y="460" width="400" height="7" rx="4" fill="var(--accent-soft)" /><rect x="272" y="460" width="400" height="7" rx="4" fill="var(--accent)" class="motion-fill"/>
+    <g class="motion-pointer"><path d="M0 0v25l7-7 6 13 5-2-6-13h12Z" fill="#fff" stroke="#283044" stroke-width="2" stroke-linejoin="round"/><circle class="motion-tap" cx="2" cy="2" r="10" fill="none" stroke="#fff" stroke-width="2"/></g>
+
+  </g>
+  <rect x="60" y="44" width="840" height="452" rx="18" fill="none" stroke="var(--border)"/>
+</svg>

@@ -1,5 +1,10 @@
 # Rozgar — Remote Job Listings Platform
 
+For interview preparation, read the [beginner interview guide](docs/rozgar-beginner-interview-guide.pdf):
+project flow, simple term explanations, and 93 project, basic, and intermediate questions.
+Its [editable Markdown](docs/rozgar-beginner-interview-guide.md) and
+[browser version](docs/rozgar-beginner-interview-guide.html) are included.
+
 New to the project? Start with the [beginner project and testing guide](docs/intern-project-guide.pdf),
 which explains the current beta, feature checks, open roadmap gaps, and interview
 questions. Its [editable source](docs/intern-project-guide.html) is kept beside the PDF.
@@ -136,6 +141,8 @@ embedded in the browser bundle.
 - `POST /cron/scrape-all` — Scheduled trigger; requires `Authorization: Bearer <CRON_SECRET>`
 - `GET /saved-searches/`, `POST /saved-searches/` — List or create owned searches; requires a Clerk bearer token
 - `DELETE /saved-searches/{search_id}` — Delete an owned search; requires a Clerk bearer token
+- `GET /company-follows`, `POST /company-follows` — List follows or follow the company of a job (`{"job_id": 123}`); requires a Clerk bearer token and verified email for creation
+- `DELETE /company-follows/{follow_id}` — Stop company alerts for an owned follow
 - `GET /health/live`, `GET /health/ready` — Liveness and dependency readiness
 - `GET /health` — Pipeline dashboard data; requires an authenticated administrator
 - `GET /docs` — Interactive API documentation

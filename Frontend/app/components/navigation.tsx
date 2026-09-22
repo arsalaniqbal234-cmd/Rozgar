@@ -15,6 +15,7 @@ export default function Navigation() {
         <Link href="/" aria-current={pathname === "/" ? "page" : undefined}>Find a job</Link>
         <Link href="/shortlist" aria-current={pathname === "/shortlist" ? "page" : undefined}><Bookmark size={15} aria-hidden />Shortlist</Link>
         <Link href="/saved-searches" aria-current={pathname === "/saved-searches" ? "page" : undefined}>Saved searches</Link>
+        <Link href="/followed-companies" aria-current={pathname === "/followed-companies" ? "page" : undefined}>Following</Link>
       </div>
       <div className="nav-actions"><ThemeToggle />
         <Show when="signed-out"><SignInButton mode="modal"><button className="button nav-signin">Sign in <ArrowUpRight size={15} aria-hidden /></button></SignInButton></Show>

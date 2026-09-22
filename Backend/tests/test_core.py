@@ -52,7 +52,9 @@ def test_migration_matches_required_columns():
 
 def test_saved_search_requires_authentication(client):
     assert client.get("/saved-searches/").status_code == 401
+    assert client.get("/saved-searches").status_code == 401
     assert client.post("/saved-searches/", json={"keywords": "python"}).status_code == 401
+    assert client.post("/saved-searches", json={"keywords": "python"}).status_code == 401
     assert client.delete("/saved-searches/1").status_code == 401
     assert client.get("/health").status_code == 401
 
@@ -127,6 +129,7 @@ def test_verified_jwt_and_rejected_claims(monkeypatch):
         token = jwt.encode(data, private, algorithm="RS256")
         return auth.current_user(HTTPAuthorizationCredentials(scheme="Bearer", credentials=token))
     assert verify(claims) == "user_a"
+    assert verify({key: value for key, value in claims.items() if key != "azp"}) == "user_a"
     from fastapi import HTTPException
     for patch in ({"exp": moment - timedelta(hours=1)}, {"iss": "https://attacker.test"},
                   {"azp": "https://attacker.test"}, {"sts": "pending"}):

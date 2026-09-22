@@ -5,17 +5,64 @@ import time
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response
+from sqlalchemy import func
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, load_only
 
 from app import cache, crud, schemas
 from app.alerts import run_alert_engine
-from app.auth import verify_api_key
-from app.models import Job
+from app.auth import current_user, optional_user, verify_api_key
+from app.models import Job, JobLike
 from app.pipeline import scrape_all, scrape_source
 from app.scrapers import AVAILABLE_SCRAPERS
 from database import get_db
 
 router = APIRouter()
+
+
+def like_result(db: Session, job_id: int, user_id: str) -> dict:
+    return {
+        "job_id": job_id,
+        "likes": db.query(func.count(JobLike.user_id)).filter(JobLike.job_id == job_id).scalar() or 0,
+        "is_liked": db.query(JobLike).filter_by(job_id=job_id, user_id=user_id).first() is not None,
+    }
+
+
+@router.get("/jobs/likes")
+def get_job_likes(
+    ids: list[int] = Query(default=[], max_length=100),
+    user_id: str | None = Depends(optional_user),
+    db: Session = Depends(get_db),
+):
+    job_ids = list(set(ids))
+    if not job_ids:
+        return []
+    counts = dict(db.query(JobLike.job_id, func.count(JobLike.user_id))
+                  .filter(JobLike.job_id.in_(job_ids)).group_by(JobLike.job_id).all())
+    liked = set()
+    if user_id:
+        liked = {row[0] for row in db.query(JobLike.job_id).filter(
+            JobLike.job_id.in_(job_ids), JobLike.user_id == user_id).all()}
+    return [{"job_id": job_id, "likes": counts.get(job_id, 0), "is_liked": job_id in liked}
+            for job_id in job_ids]
+
+
+@router.put("/jobs/{job_id}/like")
+def like_job(job_id: int, user_id: str = Depends(current_user), db: Session = Depends(get_db)):
+    if not db.get(Job, job_id):
+        raise HTTPException(404, "Job not found")
+    db.execute(insert(JobLike).values(job_id=job_id, user_id=user_id).on_conflict_do_nothing())
+    db.commit()
+    return like_result(db, job_id, user_id)
+
+
+@router.delete("/jobs/{job_id}/like")
+def unlike_job(job_id: int, user_id: str = Depends(current_user), db: Session = Depends(get_db)):
+    if not db.get(Job, job_id):
+        raise HTTPException(404, "Job not found")
+    db.query(JobLike).filter_by(job_id=job_id, user_id=user_id).delete()
+    db.commit()
+    return like_result(db, job_id, user_id)
 
 
 def parameters(

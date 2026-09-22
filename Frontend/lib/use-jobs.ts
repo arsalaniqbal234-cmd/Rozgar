@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { api, clearJobCache, Job } from "./api";
 
-export type Filters = { keyword: string; location: string; min_salary: number; salary_only: boolean; remote_only: boolean };
+export type Filters = { keyword: string; location: string; min_salary: number; salary_only: boolean; remote_only: boolean;
+  salary_currency?: string; salary_period?: "annual" | "monthly" | "hourly" };
 export const initialFilters: Filters = { keyword: "", location: "", min_salary: 0, salary_only: false, remote_only: false };
 const PAGE_SIZE = 20;
 
-export function useJobs(filters: Filters) {
+export function useJobs(filters: Filters, enabled = true) {
   const key = JSON.stringify(filters);
   const [pagination, setPagination] = useState<{ key: string; cursors: (number | undefined)[]; index: number }>({
     key: "", cursors: [undefined], index: 0,
@@ -20,6 +21,7 @@ export function useJobs(filters: Filters) {
   const requestKey = `${key}:${current.index}:${cursor ?? "first"}:${retry}`;
 
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     const timer = setTimeout(() => {
       const query = new URLSearchParams();
@@ -34,9 +36,9 @@ export function useJobs(filters: Filters) {
       });
     }, filters.keyword || filters.location ? 300 : 0);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [key, requestKey, cursor, filters.keyword, filters.location, filters]);
+  }, [key, requestKey, cursor, filters.keyword, filters.location, filters, enabled]);
 
-  const ready = state.key === requestKey;
+  const ready = enabled && state.key === requestKey;
   const jobs = ready ? state.jobs : [];
   const hasNext = ready && state.hasNext;
   return {

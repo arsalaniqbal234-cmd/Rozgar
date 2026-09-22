@@ -9,12 +9,14 @@ router = APIRouter(prefix="/saved-searches", tags=["Saved Searches"])
 
 
 @router.post("/", response_model=schemas.SavedSearchResponse)
+@router.post("", response_model=schemas.SavedSearchResponse, include_in_schema=False)
 def create_saved_search(search: schemas.SavedSearchCreate, db: Session = Depends(get_db),
                         user_id: str = Depends(current_user)):
     return crud.create_saved_search(db, search, user_id, verified_email(user_id))
 
 
 @router.get("/", response_model=list[schemas.SavedSearchResponse])
+@router.get("", response_model=list[schemas.SavedSearchResponse], include_in_schema=False)
 def get_user_saved_searches(db: Session = Depends(get_db), user_id: str = Depends(current_user)):
     return crud.get_saved_searches_by_user(db, user_id)
 

@@ -22,7 +22,7 @@ function canCacheJobs(path: string, options: RequestInit): boolean {
     && /^\/(jobs|search)(\?|$)/.test(path);
 }
 
-export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
+export async function api<T>(path: string, options: RequestInit = {}, timeoutMs = 10000): Promise<T> {
   const cancelled = () => new DOMException("The request was cancelled.", "AbortError");
   if (options.signal?.aborted) throw cancelled();
   const cacheable = canCacheJobs(path, options);
@@ -37,7 +37,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   let timedOut = false;
   const abort = () => controller.abort();
   options.signal?.addEventListener("abort", abort, { once: true });
-  const timer = globalThis.setTimeout(() => { timedOut = true; controller.abort(); }, 10000);
+  const timer = globalThis.setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs);
   try {
     const response = await fetch(API_URL + path, { ...options, signal: controller.signal, cache: "no-store" });
     if (options.signal?.aborted) throw cancelled();
@@ -81,12 +81,18 @@ export type Job = {
   id: number; source_id: string; title: string; company: string; url: string;
   salary: number | null; salary_currency?: string | null; salary_period?: string | null;
   description?: string | null; location?: string | null; is_remote: boolean;
+  preview_images?: string[] | null;
+  category?: string | null; tags?: string[] | null;
   created_at?: string | null;
 };
 export type SavedSearch = {
   id: number; keywords: string; location?: string; min_salary?: number;
-  filters?: { salary_only?: boolean; remote_only?: boolean };
+  filters?: { salary_only?: boolean; remote_only?: boolean; salary_currency?: string; salary_period?: "annual" | "monthly" | "hourly" };
   last_notified_at?: string | null;
+};
+export type CompanyFollow = {
+  id: number; company_name: string; is_active: boolean;
+  followed_at: string; last_notified_at?: string | null;
 };
 
 export function salaryLabel(job: Job): string {

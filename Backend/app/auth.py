@@ -1,4 +1,5 @@
 import hmac
+import logging
 import os
 from functools import lru_cache
 from urllib.parse import quote
@@ -11,6 +12,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.config import csv_env, origins
 
 bearer = HTTPBearer(auto_error=False)
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=4)
@@ -32,18 +34,24 @@ def current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer)) ->
             key = jwks_client(issuer).get_signing_key_from_jwt(credentials.credentials).key
         claims = jwt.decode(
             credentials.credentials, key, algorithms=["RS256"], issuer=issuer,
-            options={"require": ["exp", "nbf", "iat", "iss", "sub", "azp"], "verify_aud": False},
+            options={"require": ["exp", "nbf", "iat", "iss", "sub"], "verify_aud": False},
             leeway=5,
         )
-        if claims["azp"] not in csv_env("CLERK_AUTHORIZED_PARTIES", ",".join(origins())):
+        if claims.get("azp") and claims["azp"] not in csv_env("CLERK_AUTHORIZED_PARTIES", ",".join(origins())):
+            logger.warning("session_rejected reason=untrusted_origin origin=%s", claims["azp"])
             raise jwt.InvalidTokenError("Untrusted origin")
         if claims.get("sts") == "pending" or not claims["sub"].startswith("user_"):
             raise jwt.InvalidTokenError("Incomplete session")
         return claims["sub"]
     except jwt.PyJWKClientConnectionError:
         raise HTTPException(503, "Authentication temporarily unavailable") from None
-    except (jwt.PyJWTError, ValueError, TypeError, AttributeError):
+    except (jwt.PyJWTError, ValueError, TypeError, AttributeError) as error:
+        logger.warning("session_rejected reason=%s", type(error).__name__)
         raise HTTPException(401, "Invalid or expired session") from None
+
+
+def optional_user(credentials: HTTPAuthorizationCredentials | None = Depends(bearer)) -> str | None:
+    return current_user(credentials) if credentials else None
 
 
 def verified_email(user_id: str) -> str:
@@ -51,10 +59,15 @@ def verified_email(user_id: str) -> str:
     if not secret:
         raise HTTPException(503, "Email verification is not configured")
     try:
-        response = requests.get(
-            "https://api.clerk.com/v1/users/" + quote(user_id, safe=""),
-            headers={"Authorization": "Bearer " + secret}, timeout=5,
-        )
+        url = "https://api.clerk.com/v1/users/" + quote(user_id, safe="")
+        headers = {"Authorization": "Bearer " + secret}
+        try:
+            response = requests.get(url, headers=headers, timeout=5)
+        except requests.exceptions.ProxyError:
+            # Some local environments have a broken proxy; keep provider verification.
+            with requests.Session() as direct:
+                direct.trust_env = False
+                response = direct.get(url, headers=headers, timeout=5)
         response.raise_for_status()
         user = response.json()
     except (requests.RequestException, ValueError):

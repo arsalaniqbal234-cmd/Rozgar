@@ -1,14 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUpRight, Bell, Bookmark, BriefcaseBusiness, Check, Code2, Compass, Globe2, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { api, salaryLabel } from "../lib/api";
 import { emailAlertsEnabled } from "../lib/features";
 import { Filters, initialFilters, useJobs } from "../lib/use-jobs";
+import { filtersFromSearchParams } from "../lib/search-url";
+import { useJobLikes } from "../lib/use-job-likes";
 import BookmarkButton from "./components/bookmark-button";
 import CompanyLogo from "./components/company-logo";
+import { hasCompanyLogo } from "./components/company-logo";
+import { motionForCategory, resolveJobCategory } from "../lib/job-preview-config";
+import JobCardStats from "./components/job-card-stats";
+import HoverScrubImage from "./components/hover-scrub-image";
+import TiltCard from "./components/tilt-card";
 import SearchSuggestions from "./components/search-suggestions";
 
 const paths = [
@@ -24,14 +31,41 @@ const sources: Record<string, string> = { remoteok: "RemoteOK", arbeitnow: "Arbe
 export default function Home() {
   const { user } = useUser();
   const { getToken } = useAuth();
+  const { openSignIn } = useClerk();
   const [filters, setFilters] = useState<Filters>(initialFilters);
+  const [urlReady, setUrlReady] = useState(false);
   const [notice, setNotice] = useState("");
   const [saving, setSaving] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
-  const feed = useJobs(filters);
+  const feed = useJobs(filters, urlReady);
+  const likeStats = useJobLikes(feed.jobs.map(job => job.id), user?.id, getToken);
+  const [likeNotice, setLikeNotice] = useState<{ jobId: number; message: string } | null>(null);
+  const [tiltEnabled, setTiltEnabled] = useState(true);
   const searchInput = useRef<HTMLInputElement>(null);
   const update = (patch: Partial<Filters>) => setFilters(previous => ({ ...previous, ...patch }));
   const activeCount = Object.values(filters).filter(Boolean).length;
+  const salaryOptions = filters.salary_period === "hourly" ? [0, 15, 25, 50, 100]
+    : filters.salary_period === "monthly" ? [0, 2000, 5000, 10000]
+    : [0, 50000, 80000, 100000];
+
+  useEffect(() => {
+    const readUrl = () => {
+      setFilters(filtersFromSearchParams(new URLSearchParams(window.location.search)));
+      setUrlReady(true);
+    };
+    readUrl();
+    window.addEventListener("popstate", readUrl);
+    return () => window.removeEventListener("popstate", readUrl);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/feature-flags", { cache: "no-store", signal: controller.signal })
+      .then(response => response.ok ? response.json() : null)
+      .then(flags => { if (flags && !controller.signal.aborted) setTiltEnabled(flags.tiltCards === true); })
+      .catch(() => { /* Keep the default when the flag endpoint is unavailable. */ });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
@@ -56,7 +90,8 @@ export default function Home() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ keywords: filters.keyword, location: filters.location || null,
           min_salary: filters.min_salary || null, filters: { salary_only: filters.salary_only,
-            remote_only: filters.remote_only, salary_currency: "USD", salary_period: "annual" } }) });
+            remote_only: filters.remote_only, salary_currency: filters.salary_currency || "USD",
+            salary_period: filters.salary_period || "annual" } }) });
       setNotice(emailAlertsEnabled ? "Search saved. Manage your alerts in Saved searches." : "Search saved. Email alerts are paused for now. Manage your searches in Saved searches.");
     } catch (error) { setNotice((error as Error).message); }
     finally { setSaving(false); }
@@ -97,8 +132,9 @@ export default function Home() {
         <button className="button save-search-button" onClick={saveSearch} disabled={saving}><Bell size={17} aria-hidden />{saving ? "Saving…" : "Save search"}</button>
       </div>
       <div className="search-secondary">
-        <label className="salary-filter"><span>Minimum annual salary (USD)</span><select suppressHydrationWarning className="field" value={filters.min_salary} onChange={event => update({ min_salary: Number(event.target.value) })}>
-          <option value={0}>Any salary</option><option value={50000}>50,000+</option><option value={80000}>80,000+</option><option value={100000}>100,000+</option>
+        <label className="salary-filter"><span>Minimum {filters.salary_period || "annual"} salary ({filters.salary_currency || "USD"})</span><select suppressHydrationWarning className="field" value={filters.min_salary} onChange={event => update({ min_salary: Number(event.target.value) })}>
+          {salaryOptions.map(amount => <option key={amount} value={amount}>{amount ? `${amount.toLocaleString()}+` : "Any salary"}</option>)}
+          {!salaryOptions.includes(filters.min_salary) && <option value={filters.min_salary}>{filters.min_salary.toLocaleString()}+</option>}
         </select></label>
         <label className="check-filter"><input suppressHydrationWarning type="checkbox" checked={filters.salary_only} onChange={event => update({ salary_only: event.target.checked })} /> Salary listed only</label>
         <label className="check-filter"><input suppressHydrationWarning type="checkbox" checked={filters.remote_only} onChange={event => update({ remote_only: event.target.checked })} /> Remote only</label>
@@ -119,16 +155,34 @@ export default function Home() {
         <div className="results-heading"><div><p className="eyebrow">THE NEXT CHAPTER</p><h2>{activeCount ? "Your matching opportunities" : "Latest opportunities"}</h2><p className="results-count">{feed.loading ? "Finding your next possibility…" : `${feed.jobs.length} ${feed.jobs.length === 1 ? "role" : "roles"} on page ${feed.page}`}</p></div>
           <div className="view-switch" role="group" aria-label="Results layout"><button aria-label="Grid view" aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid size={17} aria-hidden /></button><button aria-label="List view" aria-pressed={view === "list"} onClick={() => setView("list")}><List size={18} aria-hidden /></button></div>
         </div>
+        {likeStats.loadError && <p role="status" className="mb-3 text-xs text-rose-600">{likeStats.loadError}</p>}
         {feed.loading && <div><p role="status" className="sr-only">Loading jobs…</p><div className="job-grid" aria-hidden>{Array.from({ length: 6 }, (_, i) => <div className="job-skeleton" key={i}><div /><span /><span /><span /></div>)}</div></div>}
         {feed.error && <div role="alert" className="empty-state"><Globe2 size={28} aria-hidden /><h3>Let’s try that again</h3><p>{feed.error}</p><button className="button" onClick={feed.retry}>Try again</button></div>}
         {!feed.loading && !feed.error && feed.jobs.length === 0 && <div className="empty-state"><BriefcaseBusiness size={30} aria-hidden /><h3>No matching jobs yet</h3><p>A new direction could be one keyword away. Try a broader search or clear some filters.</p><button className="button" onClick={() => setFilters(initialFilters)}>Explore all roles</button></div>}
-        <div className={`job-grid ${view === "list" ? "job-list" : ""}`}>{feed.jobs.map(job => <article key={job.id} className="job-card">
+        <div className={`job-grid ${view === "list" ? "job-list" : ""}`}>{feed.jobs.map(job => <TiltCard key={job.id} className="h-full" enableTilt={tiltEnabled} glare={false}><article className="job-card h-full">
+          <div className="job-preview relative mb-4">
+            <HoverScrubImage category={resolveJobCategory(job)} images={job.preview_images ?? undefined}
+              motionSrc={!job.preview_images?.length ? motionForCategory(resolveJobCategory(job)) : undefined}
+              companyLogo={hasCompanyLogo(job.company, job.source_id) ? <CompanyLogo company={job.company} variant={job.id % 4} sourceId={job.source_id} jobUrl={job.url} /> : undefined}
+              companyName={job.company}
+              alt={`${job.company} ${resolveJobCategory(job)} job preview`}
+              className={view === "list" ? "h-44 w-full" : "aspect-[16/9] w-full"} transition="crossfade" />
+            {!job.preview_images?.length && <span className="pointer-events-none absolute right-3 top-3 rounded-full border border-white/30 bg-emerald-950/65 px-2.5 py-1 text-[10px] font-medium tracking-wide text-white backdrop-blur-sm">Illustrated preview</span>}
+          </div>
           <div className="job-card-top"><CompanyLogo company={job.company} variant={job.id % 4} sourceId={job.source_id} jobUrl={job.url} /><div className="job-company"><p>{job.company}</p><span>{sources[job.source_id.split("_")[0]] || "Job board"}</span></div><BookmarkButton job={job} /></div>
           <h3><Link href={`/jobs/${job.id}`} prefetch={false}>{job.title}</Link></h3>
           <p className="job-location"><MapPin size={14} aria-hidden />{job.location || "Location not listed"}</p>
           <div className="job-tags">{job.is_remote ? <span className="remote-tag"><Globe2 size={12} aria-hidden />Remote</span> : <span>Work arrangement not confirmed</span>}{job.salary ? <span>Salary listed</span> : null}</div>
           <div className="job-card-bottom"><p className="job-salary">{salaryLabel(job)}</p><Link href={`/jobs/${job.id}`} prefetch={false} aria-label={`View job at ${job.company}`}><span>View job</span><ArrowUpRight size={17} aria-hidden /></Link></div>
-        </article>)}</div>
+          <JobCardStats jobId={job.id} likes={likeStats.byId[job.id]?.likes || 0}
+            isLiked={likeStats.byId[job.id]?.is_liked || false}
+            onLikeToggle={likeStats.pending === null ? () => {
+              if (!user) { openSignIn(); return; }
+              setLikeNotice(null);
+              void likeStats.toggle(job.id).catch(error => setLikeNotice({ jobId: job.id, message: (error as Error).message }));
+            } : undefined} />
+          {likeNotice?.jobId === job.id && <p role="alert" className="mt-1 text-xs text-rose-600">Could not update like: {likeNotice.message}</p>}
+        </article></TiltCard>)}</div>
         {(feed.hasPrevious || feed.hasNext) && <nav className="job-pagination" aria-label="Job result pages">
           <button type="button" onClick={feed.previousPage} disabled={!feed.hasPrevious || feed.loading}>Previous</button>
           <span>Page {feed.page}</span>
