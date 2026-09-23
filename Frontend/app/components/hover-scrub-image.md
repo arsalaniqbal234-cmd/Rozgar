@@ -1,6 +1,8 @@
+> Legacy component reference. The matching-opportunities grid now uses `HoverVideoPreview` and rendered video assets. See [the Remotion pipeline](../../remotion/README.md) for current behavior.
+
 # Category-aware job previews
 
-The home page renders `HoverScrubImage` at the top of each job card, inside `TiltCard` and before the company row. The preview is decorative; job links, bookmarks, likes, and card behavior stay outside it.
+The original implementation rendered `HoverScrubImage` at the top of each job card, inside `TiltCard` and before the company row. The preview is decorative; job links, bookmarks, likes, and card behavior stay outside it.
 
 ```tsx
 import HoverScrubImage from "@/app/components/hover-scrub-image";

@@ -67,21 +67,23 @@ describe("job feed", () => {
     render(<Home />);
     expect(await screen.findByText("No matching jobs yet")).toBeInTheDocument();
   });
-  it("shows at most 20 jobs per page and navigates with a cursor", async () => {
-    const page = Array.from({ length: 21 }, (_, index) => ({ ...job, id: 100 - index, title: "Role " + index }));
+  it("shows at most 15 jobs per page and navigates with a cursor", async () => {
+    const page = Array.from({ length: 16 }, (_, index) => ({ ...job, id: 100 - index, title: "Role " + index }));
     fetchMock.mockResolvedValueOnce(Response.json(page)).mockResolvedValueOnce(Response.json([job]));
     render(<Home />);
     expect(await screen.findByRole("button", { name: "Next" })).toBeInTheDocument();
-    expect(screen.getAllByRole("article")).toHaveLength(20);
-    expect(screen.queryByRole("link", { name: "Role 20" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(15);
+    expect(screen.getByText("15 roles on page 1")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Role 15" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(await screen.findByRole("link", { name: "Python engineer" })).toBeInTheDocument();
-    expect(fetchMock.mock.calls[1][0]).toContain("before_id=81");
+    expect(fetchMock.mock.calls[1][0]).toContain("before_id=86");
+    expect(fetchMock.mock.calls[0][0]).toContain("limit=16");
     expect(screen.getAllByRole("article")).toHaveLength(1);
     expect(screen.getByText("Page 2")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Previous" }));
     expect(await screen.findByRole("link", { name: "Role 0" })).toBeInTheDocument();
-    expect(screen.getAllByRole("article")).toHaveLength(20);
+    expect(screen.getAllByRole("article")).toHaveLength(15);
   });
   it("suggests matching job titles and locations while typing", async () => {
     fetchMock.mockImplementation(async (url: string) => {

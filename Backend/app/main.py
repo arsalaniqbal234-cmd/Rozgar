@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse, Response
 
 from app.config import origins
 from app.observability import report_failure, setup_monitoring
-from app.routers import company_follows, health, jobs, saved_searches
+from app.routers import company_follows, health, jobs, saved_searches, shortlist
 
 setup_monitoring()
 app = FastAPI(title="Rozgar API", version="0.8.0")
@@ -33,7 +33,7 @@ async def request_context(request: Request, call_next):
     response.headers["X-Request-ID"] = request_id
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Response-Time-Ms"] = f"{(time.perf_counter()-start)*1000:.2f}"
-    if request.url.path.startswith(("/saved-searches", "/company-follows", "/health")) or request.url.path == "/jobs/likes" or request.url.path.endswith("/like"):
+    if request.url.path.startswith(("/saved-searches", "/company-follows", "/shortlist", "/health")) or request.url.path == "/jobs/likes" or request.url.path.endswith("/like"):
         response.headers["Cache-Control"] = "no-store"
     return response
 
@@ -50,5 +50,6 @@ def favicon():
 
 app.include_router(jobs.router)
 app.include_router(saved_searches.router)
+app.include_router(shortlist.router)
 app.include_router(company_follows.router)
 app.include_router(health.router)

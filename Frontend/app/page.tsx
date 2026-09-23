@@ -3,18 +3,13 @@
 import Link from "next/link";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUpRight, Bell, Bookmark, BriefcaseBusiness, Check, Code2, Compass, Globe2, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
-import { api, salaryLabel } from "../lib/api";
+import { ArrowDown, ArrowUpRight, Bell, Bookmark, BriefcaseBusiness, Check, Code2, Compass, Globe2, LayoutGrid, List, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
+import { api } from "../lib/api";
 import { emailAlertsEnabled } from "../lib/features";
 import { Filters, initialFilters, useJobs } from "../lib/use-jobs";
 import { filtersFromSearchParams } from "../lib/search-url";
 import { useJobLikes } from "../lib/use-job-likes";
-import BookmarkButton from "./components/bookmark-button";
-import CompanyLogo from "./components/company-logo";
-import { hasCompanyLogo } from "./components/company-logo";
-import { motionForCategory, resolveJobCategory } from "../lib/job-preview-config";
-import JobCardStats from "./components/job-card-stats";
-import HoverScrubImage from "./components/hover-scrub-image";
+import JobCard from "./components/job-card";
 import TiltCard from "./components/tilt-card";
 import SearchSuggestions from "./components/search-suggestions";
 
@@ -24,7 +19,6 @@ const paths = [
   { label: "Data & analytics", keyword: "data", icon: Sparkles },
   { label: "Marketing", keyword: "marketing", icon: Globe2 },
 ];
-const sources: Record<string, string> = { remoteok: "RemoteOK", arbeitnow: "Arbeitnow", jobicy: "Jobicy", greenhouse: "Company careers", ashby: "Company careers" };
 // Browser form-fill extensions can add attributes such as fdprocessedid before hydration.
 // Only search controls suppress these benign attribute mismatches; the panel stays server-rendered.
 
@@ -110,7 +104,7 @@ export default function Home() {
       </div>
       <div className="journey-card">
         <div className="journey-top"><span className="eyebrow">MAKE YOUR NEXT MOVE</span><span className="journey-symbol" aria-hidden>↗</span></div>
-        <h2>A career that<br />feels like <em>you.</em></h2>
+        <h2>A career that{" "}<br />feels like <em>you.</em></h2>
         <ol className="journey-steps">
           <li><span className="step-icon"><Search size={18} aria-hidden /></span><div><strong>Find your direction</strong><span>Search for what matters to you.</span></div><span className="step-number">01</span></li>
           <li><span className="step-icon"><Bookmark size={18} aria-hidden /></span><div><strong>Make a shortlist</strong><span>Keep the roles that stand out.</span></div><span className="step-number">02</span></li>
@@ -159,30 +153,13 @@ export default function Home() {
         {feed.loading && <div><p role="status" className="sr-only">Loading jobs…</p><div className="job-grid" aria-hidden>{Array.from({ length: 6 }, (_, i) => <div className="job-skeleton" key={i}><div /><span /><span /><span /></div>)}</div></div>}
         {feed.error && <div role="alert" className="empty-state"><Globe2 size={28} aria-hidden /><h3>Let’s try that again</h3><p>{feed.error}</p><button className="button" onClick={feed.retry}>Try again</button></div>}
         {!feed.loading && !feed.error && feed.jobs.length === 0 && <div className="empty-state"><BriefcaseBusiness size={30} aria-hidden /><h3>No matching jobs yet</h3><p>A new direction could be one keyword away. Try a broader search or clear some filters.</p><button className="button" onClick={() => setFilters(initialFilters)}>Explore all roles</button></div>}
-        <div className={`job-grid ${view === "list" ? "job-list" : ""}`}>{feed.jobs.map(job => <TiltCard key={job.id} className="h-full" enableTilt={tiltEnabled} glare={false}><article className="job-card h-full">
-          <div className="job-preview relative mb-4">
-            <HoverScrubImage category={resolveJobCategory(job)} images={job.preview_images ?? undefined}
-              motionSrc={!job.preview_images?.length ? motionForCategory(resolveJobCategory(job)) : undefined}
-              companyLogo={hasCompanyLogo(job.company, job.source_id) ? <CompanyLogo company={job.company} variant={job.id % 4} sourceId={job.source_id} jobUrl={job.url} /> : undefined}
-              companyName={job.company}
-              alt={`${job.company} ${resolveJobCategory(job)} job preview`}
-              className={view === "list" ? "h-44 w-full" : "aspect-[16/9] w-full"} transition="crossfade" />
-            {!job.preview_images?.length && <span className="pointer-events-none absolute right-3 top-3 rounded-full border border-white/30 bg-emerald-950/65 px-2.5 py-1 text-[10px] font-medium tracking-wide text-white backdrop-blur-sm">Illustrated preview</span>}
-          </div>
-          <div className="job-card-top"><CompanyLogo company={job.company} variant={job.id % 4} sourceId={job.source_id} jobUrl={job.url} /><div className="job-company"><p>{job.company}</p><span>{sources[job.source_id.split("_")[0]] || "Job board"}</span></div><BookmarkButton job={job} /></div>
-          <h3><Link href={`/jobs/${job.id}`} prefetch={false}>{job.title}</Link></h3>
-          <p className="job-location"><MapPin size={14} aria-hidden />{job.location || "Location not listed"}</p>
-          <div className="job-tags">{job.is_remote ? <span className="remote-tag"><Globe2 size={12} aria-hidden />Remote</span> : <span>Work arrangement not confirmed</span>}{job.salary ? <span>Salary listed</span> : null}</div>
-          <div className="job-card-bottom"><p className="job-salary">{salaryLabel(job)}</p><Link href={`/jobs/${job.id}`} prefetch={false} aria-label={`View job at ${job.company}`}><span>View job</span><ArrowUpRight size={17} aria-hidden /></Link></div>
-          <JobCardStats jobId={job.id} likes={likeStats.byId[job.id]?.likes || 0}
-            isLiked={likeStats.byId[job.id]?.is_liked || false}
-            onLikeToggle={likeStats.pending === null ? () => {
-              if (!user) { openSignIn(); return; }
-              setLikeNotice(null);
-              void likeStats.toggle(job.id).catch(error => setLikeNotice({ jobId: job.id, message: (error as Error).message }));
-            } : undefined} />
-          {likeNotice?.jobId === job.id && <p role="alert" className="mt-1 text-xs text-rose-600">Could not update like: {likeNotice.message}</p>}
-        </article></TiltCard>)}</div>
+        <div className={`job-grid ${view === "list" ? "job-list" : ""}`}>{feed.jobs.map(job => <TiltCard key={job.id} className="h-full" enableTilt={tiltEnabled} glare={false}><JobCard job={job} list={view === "list"}
+          likes={likeStats.byId[job.id]?.likes || 0} isLiked={likeStats.byId[job.id]?.is_liked || false}
+          onLikeToggle={likeStats.pending === null ? () => {
+            if (!user) { openSignIn(); return; }
+            setLikeNotice(null);
+            void likeStats.toggle(job.id).catch(error => setLikeNotice({ jobId: job.id, message: (error as Error).message }));
+          } : undefined} likeError={likeNotice?.jobId === job.id ? likeNotice.message : undefined} /></TiltCard>)}</div>
         {(feed.hasPrevious || feed.hasNext) && <nav className="job-pagination" aria-label="Job result pages">
           <button type="button" onClick={feed.previousPage} disabled={!feed.hasPrevious || feed.loading}>Previous</button>
           <span>Page {feed.page}</span>

@@ -34,7 +34,7 @@ def migrate():
 @pytest.fixture(autouse=True)
 def isolate(monkeypatch):
     with engine.begin() as connection:
-        connection.execute(text("TRUNCATE company_alert_deliveries, company_follows, alert_deliveries, job_sources, saved_searches, scrape_runs, jobs RESTART IDENTITY CASCADE"))
+        connection.execute(text("TRUNCATE saved_jobs, company_alert_deliveries, company_follows, alert_deliveries, job_sources, saved_searches, scrape_runs, jobs RESTART IDENTITY CASCADE"))
     app.dependency_overrides.clear()
     cache.client.cache_clear()
     cache._failure_until = 0

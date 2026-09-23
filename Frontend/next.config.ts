@@ -22,6 +22,7 @@ const config: NextConfig = {
     { source: "/api/jobs/:jobId", destination: `${apiUrl}/jobs/:jobId` },
     { source: "/api/jobs/:jobId/like", destination: `${apiUrl}/jobs/:jobId/like` },
     { source: "/api/saved-searches/:path*", destination: `${apiUrl}/saved-searches/:path*` },
+    { source: "/api/shortlist/:path*", destination: `${apiUrl}/shortlist/:path*` },
     { source: "/api/company-follows", destination: `${apiUrl}/company-follows` },
     { source: "/api/company-follows/:path*", destination: `${apiUrl}/company-follows/:path*` },
     { source: "/api/health", destination: `${apiUrl}/health` },

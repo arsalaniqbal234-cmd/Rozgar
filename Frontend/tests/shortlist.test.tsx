@@ -77,7 +77,7 @@ describe("browser shortlist", () => {
   });
 
   it("keeps existing jobs intact and reports quota failures without claiming a save", async () => {
-    storeJobs([{ ...job, id: 22, title: "Existing role" }]);
+    storeJobs([{ ...job, id: 22, source_id: "remoteok_22", title: "Existing role" }]);
     render(<BookmarkButton job={job} />);
     const button = screen.getByRole("button", { name: "Save job Python engineer" });
     await waitFor(() => expect(button).toBeEnabled());
@@ -99,7 +99,7 @@ describe("browser shortlist", () => {
   });
 
   it("caps the shortlist without silently deleting earlier saved jobs", async () => {
-    storeJobs(Array.from({ length: SHORTLIST_LIMIT }, (_, index) => ({ ...job, id: index + 100 })));
+    storeJobs(Array.from({ length: SHORTLIST_LIMIT }, (_, index) => ({ ...job, id: index + 100, source_id: `source_${index}` })));
     render(<BookmarkButton job={job} />);
     const button = screen.getByRole("button", { name: "Save job Python engineer" });
     await waitFor(() => expect(button).toBeEnabled());

@@ -12,7 +12,7 @@ export default function ShortlistPage() {
     <header className="page-header mb-8">
       <p className="eyebrow mb-3 text-sm font-semibold text-indigo-400">YOUR NEXT MOVE</p>
       <h1 className="text-3xl font-bold sm:text-4xl">Your shortlist</h1>
-      <p className="mt-3 max-w-2xl text-slate-400">Keep promising opportunities together and come back when you’re ready. Saved on this browser, with no sign-in needed.</p>
+      <p className="mt-3 max-w-2xl text-slate-400">Keep promising opportunities together and come back when you’re ready. Saved on this browser, with no sign-in needed. Sign in to merge and sync your shortlist with your account.</p>
     </header>
     {error && <div role="alert" className="panel mb-6 border-rose-500/40">
       <p>{error}</p><button type="button" className="button mt-3" onClick={() => retry()}>Try again</button>
@@ -42,7 +42,7 @@ export default function ShortlistPage() {
           <Link href={`/jobs/${job.id}`} className="mt-6 inline-flex items-center gap-1 text-sm font-bold text-indigo-300">View job <ArrowUpRight aria-hidden="true" size={16} /></Link>
         </article>)}
       </div>
-      <p className="mt-8 text-sm text-slate-400">Job details may change after saving. Open a role to check its latest information. Clearing site data also clears this shortlist.</p>
+      <p className="mt-8 text-sm text-slate-400">Job details may change after saving. Open a role to check its latest information. Clearing site data clears guest saves and changes that have not synced to your account.</p>
     </>}
   </main>;
 }

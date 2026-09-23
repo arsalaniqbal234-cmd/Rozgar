@@ -3,8 +3,35 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { CATEGORY_IMAGE_SETS, CATEGORY_MOTION_PREVIEWS, imagesForCategory, motionForCategory, resolveJobCategory } from "../lib/job-preview-config";
+import { videoForCategory, videoForJob } from "../lib/job-video-config";
+import { createHash } from "node:crypto";
 
 describe("job preview category selection", () => {
+  it.each([
+    ["Pricing Strategist, GTM", "marketing"], ["Marketing Analytics Manager", "marketing"],
+    ["Senior Frontend Developer", "engineering"], ["Technical Recruiter", "people"],
+    ["Product Marketing Lead", "marketing"], ["Product Manager", "product"],
+    ["Data Engineer", "data"], ["Clinical Nurse", "healthcare"],
+    ["Account Executive", "sales"], ["Supply Chain Manager", "logistics"],
+    ["Financial Analyst", "finance"], ["Customer Success Manager", "support"],
+    ["Legal Counsel", "legal"], ["Security Engineer", "security"],
+    ["Project Manager", "operations"], ["Teacher", "education"], ["UX Designer", "design"],
+    ["Software Engineer, Marketing", "engineering"], ["Build Engineer", "engineering"],
+    ["People Systems Analyst", "people"],
+  ])("resolves title-only backend record %s to %s", (title, expected) => {
+    expect(resolveJobCategory({ title })).toBe(expected);
+    expect(videoForJob({ title }).mp4).toContain(`/${expected}-1.mp4`);
+    expect(resolveJobCategory({ category: "General", tags: ["Remote", "Full-time"], title })).toBe(expected);
+  });
+
+  it("keeps all 32 video stems distinct and checks actual bytes, not just filenames", () => {
+    const paths = Object.keys(CATEGORY_IMAGE_SETS).flatMap(category => ([1, 2] as const).map(variant => videoForCategory(category, variant)));
+    expect(new Set(paths.map(p => p.mp4)).size).toBe(32);
+    for (const format of ["mp4", "webm"] as const) {
+      const hashes = paths.map(p => createHash("sha256").update(readFileSync(join(process.cwd(), "public", p[format].split("?")[0]))).digest("hex"));
+      expect(new Set(hashes).size).toBe(32);
+    }
+  });
   it("has a lightweight six-second motion asset for every static category", () => {
     expect(Object.keys(CATEGORY_MOTION_PREVIEWS).sort()).toEqual(Object.keys(CATEGORY_IMAGE_SETS).sort());
     for (const [category, path] of Object.entries(CATEGORY_MOTION_PREVIEWS)) {

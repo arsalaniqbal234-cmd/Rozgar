@@ -84,6 +84,7 @@ export type Job = {
   preview_images?: string[] | null;
   category?: string | null; tags?: string[] | null;
   created_at?: string | null;
+  posted_at?: string | null;
 };
 export type SavedSearch = {
   id: number; keywords: string; location?: string; min_salary?: number;

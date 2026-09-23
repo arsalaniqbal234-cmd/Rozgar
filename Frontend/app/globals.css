@@ -250,3 +250,26 @@
 }
 @media (max-width: 380px) { .page-shell { padding-inline: 14px; }.nav-inner { padding-inline: 14px; }.hero h1 { font-size: 40px; }.nav-links { gap: 20px; }.hero-note { font-size: 9px; }.search-primary { grid-template-columns: 1fr; }.journey-steps { gap: 10px; }.search-primary > * { grid-column: 1; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; transition: none !important; } }
+
+/* The matching-opportunities cards trade empty supporting space for a larger shot. */
+.job-card.video-job-card { padding: 16px; }
+.video-job-card .job-preview-shot { aspect-ratio: 16 / 10; height: auto; min-height: 0; }
+/* Add a fixed 48px to the shot at every card width; recover the same space below. */
+@supports (height: 1cqw) {
+  .job-grid:not(.job-list) .job-preview { container-type: inline-size; }
+  .job-grid:not(.job-list) .job-preview-shot { height: calc(62.5cqw + 48px); aspect-ratio: auto; }
+}
+.video-job-card h3 { margin-top: 6px; }
+.video-job-card .job-location { margin-top: 3px; font-size: 10px; }
+.video-job-card .job-tags { margin-block: 5px 6px; font-size: 8.5px; }
+.video-job-card .job-tags > span { padding-block: 3px; }
+.video-job-card .job-card-bottom { padding-top: 4px; }
+.video-job-card .job-salary { font-size: 9.5px; }
+.video-job-card .job-card-bottom a { min-height: 24px; }
+.video-job-card > .border-t { margin-top: 3px; padding-top: 2px; }
+.video-job-card > .border-t > :is(button, span) { min-height: 30px; }
+@media (max-width: 640px) {
+  .video-job-card .job-location { font-size: 11px; }
+  .video-job-card .job-tags { font-size: 9px; }
+  .video-job-card .job-salary { font-size: 10px; }
+}

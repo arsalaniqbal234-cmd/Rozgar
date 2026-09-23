@@ -1,7 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useContext, useSyncExternalStore } from "react";
 import type { Job } from "./api";
+import { ShortlistContext } from "./shortlist-context";
 
 export type ShortlistedJob = Omit<Job, "description">;
 export const SHORTLIST_KEY = "rozgar.shortlist.v1";
@@ -20,7 +21,7 @@ function boundedText(value: unknown, max: number): value is string {
   return typeof value === "string" && value.trim().length > 0 && value.length <= max;
 }
 
-function sanitizeJob(value: unknown): ShortlistedJob | null {
+export function sanitizeJob(value: unknown): ShortlistedJob | null {
   if (!value || typeof value !== "object") return null;
   const job = value as Record<string, unknown>;
   if (!Number.isSafeInteger(job.id) || (job.id as number) <= 0
@@ -110,7 +111,8 @@ function writeJobs(jobs: ShortlistedJob[]): string | null {
 
 function toggleJob(value: Job): string | null {
   if (!readStorage()) return STORAGE_ERROR;
-  if (snapshot.jobs.some(job => job.id === value.id)) return removeJob(value.id);
+  const existing = snapshot.jobs.find(job => sameJob(job, value));
+  if (existing) return removeJob(existing.id);
   if (snapshot.jobs.length >= SHORTLIST_LIMIT) {
     return `Your shortlist holds up to ${SHORTLIST_LIMIT} jobs. Remove a saved job before adding another.`;
   }
@@ -127,7 +129,17 @@ function removeJob(id: number): string | null {
 const getSnapshot = () => snapshot;
 const getServerSnapshot = () => initialSnapshot;
 
-export function useShortlist() {
+export function sameJob(a: Pick<Job, "id" | "source_id">, b: Pick<Job, "id" | "source_id">) {
+  return a.id === b.id || a.source_id === b.source_id;
+}
+
+export function useBrowserShortlist() {
   const current = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return { ...current, toggleJob, removeJob, retry: readStorage };
+}
+
+export function useShortlist() {
+  const account = useContext(ShortlistContext);
+  const browser = useBrowserShortlist();
+  return account ?? browser;
 }

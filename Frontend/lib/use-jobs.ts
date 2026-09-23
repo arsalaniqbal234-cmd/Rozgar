@@ -5,7 +5,7 @@ import { api, clearJobCache, Job } from "./api";
 export type Filters = { keyword: string; location: string; min_salary: number; salary_only: boolean; remote_only: boolean;
   salary_currency?: string; salary_period?: "annual" | "monthly" | "hourly" };
 export const initialFilters: Filters = { keyword: "", location: "", min_salary: 0, salary_only: false, remote_only: false };
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 15;
 
 export function useJobs(filters: Filters, enabled = true) {
   const key = JSON.stringify(filters);
@@ -26,6 +26,7 @@ export function useJobs(filters: Filters, enabled = true) {
     const timer = setTimeout(() => {
       const query = new URLSearchParams();
       Object.entries(filters).forEach(([name, value]) => { if (value) query.set(name, String(value)); });
+      // One lookahead record detects the next page; only PAGE_SIZE jobs are shown.
       query.set("limit", String(PAGE_SIZE + 1));
       query.set("summary", "true");
       if (cursor) query.set("before_id", String(cursor));

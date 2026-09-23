@@ -37,6 +37,16 @@ class JobLike(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
+class SavedJob(Base):
+    __tablename__ = "saved_jobs"
+    user_id = Column(String, primary_key=True)
+    source_id = Column(String(300), primary_key=True)
+    job_id = Column(Integer, nullable=False)
+    # Keep the saved summary even when an imported job expires or is deleted.
+    payload = Column(JSON, nullable=False)
+    __table_args__ = (UniqueConstraint("user_id", "job_id", name="uq_saved_job_user_id"),)
+
+
 class SavedSearch(Base):
     __tablename__ = "saved_searches"
     id = Column(Integer, primary_key=True, index=True)
