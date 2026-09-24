@@ -6,7 +6,8 @@ const salaryPeriods = ["annual", "monthly", "hourly"] as const;
 export function savedSearchHref(search: SavedSearch): string {
   const params = new URLSearchParams();
   if (search.keywords) params.set("keyword", search.keywords);
-  if (search.location) params.set("location", search.location);
+  // Preserve explicitly worldwide saved searches despite the Pakistan home default.
+  params.set("location", search.location || "");
   if (search.min_salary && search.min_salary > 0) params.set("min_salary", String(search.min_salary));
   if (search.filters?.salary_only) params.set("salary_only", "true");
   if (search.filters?.remote_only) params.set("remote_only", "true");
@@ -25,7 +26,7 @@ export function filtersFromSearchParams(params: URLSearchParams): Filters {
   return {
     ...initialFilters,
     keyword: (params.get("keyword") || "").slice(0, 200),
-    location: (params.get("location") || "").slice(0, 200),
+    location: (params.get("location") ?? initialFilters.location).slice(0, 200),
     min_salary: Number.isSafeInteger(amount) && amount >= 0 && amount <= 1_000_000_000 ? amount : 0,
     salary_only: params.get("salary_only") === "true",
     remote_only: params.get("remote_only") === "true",

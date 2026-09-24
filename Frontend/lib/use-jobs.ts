@@ -4,7 +4,7 @@ import { api, clearJobCache, Job } from "./api";
 
 export type Filters = { keyword: string; location: string; min_salary: number; salary_only: boolean; remote_only: boolean;
   salary_currency?: string; salary_period?: "annual" | "monthly" | "hourly" };
-export const initialFilters: Filters = { keyword: "", location: "", min_salary: 0, salary_only: false, remote_only: false };
+export const initialFilters: Filters = { keyword: "", location: "Pakistan", min_salary: 0, salary_only: false, remote_only: false };
 const PAGE_SIZE = 15;
 
 export function useJobs(filters: Filters, enabled = true) {

@@ -1,7 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { filtersFromSearchParams, savedSearchHref } from "../lib/search-url";
+import { initialFilters } from "../lib/use-jobs";
 
 describe("saved search URLs", () => {
+  it("defaults the homepage and reset filters to Pakistan", () => {
+    expect(initialFilters.location).toBe("Pakistan");
+    expect(filtersFromSearchParams(new URLSearchParams()).location).toBe("Pakistan");
+    expect(filtersFromSearchParams(new URLSearchParams("keyword=engineer")).location).toBe("Pakistan");
+  });
+
+  it("preserves explicitly selected locations and worldwide saved searches", () => {
+    expect(filtersFromSearchParams(new URLSearchParams("location=Lahore")).location).toBe("Lahore");
+    expect(filtersFromSearchParams(new URLSearchParams("location=")).location).toBe("");
+    const href = savedSearchHref({ id: 2, keywords: "Engineer", location: null, min_salary: null, filters: {} });
+    expect(filtersFromSearchParams(new URL(href, "http://localhost").searchParams).location).toBe("");
+  });
+
   it("round-trips every saved filter through the results URL", () => {
     const href = savedSearchHref({
       id: 1, keywords: "Data Engineer", location: "Berlin, Germany", min_salary: 85000,
