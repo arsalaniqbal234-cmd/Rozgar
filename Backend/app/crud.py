@@ -1,11 +1,14 @@
 import hashlib
 import json
+import re
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from sqlalchemy import func, or_
 from sqlalchemy.dialects.postgresql import insert
 
 from app.models import Job, JobSource, SavedSearch
+from app.locations import PAKISTAN_ALIASES, pakistan_location_condition, suggests_pakistan
+from app.pakistan_places import pakistan_place_suggestions, selected_pakistan_city
 
 
 def canonical_url(url: str) -> str:
@@ -29,7 +32,15 @@ def job_query(db, keyword="", company=None, location=None, min_salary=None,
     if company:
         query = query.filter(Job.company.icontains(company.strip(), autoescape=True))
     if location:
-        query = query.filter(Job.location.icontains(location.strip(), autoescape=True))
+        if location.strip().casefold() in PAKISTAN_ALIASES:
+            query = query.filter(pakistan_location_condition(Job.location))
+        elif city := selected_pakistan_city(location):
+            # A catalog choice must still match 'Rawalpindi, Punjab, Pakistan'
+            # and multi-city postings, rather than requiring adjacent words.
+            query = query.filter(pakistan_location_condition(Job.location),
+                                 Job.location.regexp_match(r"\y" + re.escape(city) + r"\y", flags="i"))
+        else:
+            query = query.filter(Job.location.icontains(location.strip(), autoescape=True))
     if min_salary is not None and min_salary > 0:
         query = query.filter(Job.salary >= min_salary, Job.salary_currency == salary_currency,
                              Job.salary_period == salary_period)
@@ -46,14 +57,24 @@ def get_job_by_id(db, job_id):
 
 def job_suggestions(db, field: str, query: str, limit: int = 8) -> list[str]:
     column = Job.title if field == "title" else Job.location
-    return [value for (value,) in (
+    condition = column.icontains(query.strip(), autoescape=True)
+    country = field == "location" and suggests_pakistan(query)
+    if country:
+        condition = or_(condition, pakistan_location_condition(column))
+    values = [value for (value,) in (
         db.query(column)
-        .filter(column.isnot(None), column.icontains(query.strip(), autoescape=True))
+        .filter(column.isnot(None), condition)
         .distinct().order_by(column).limit(limit).all()
     )]
+    if field == "location":
+        catalog = pakistan_place_suggestions(query, limit)
+        # The best catalog match stays visible even when the city has no jobs;
+        # retain existing source-specific location suggestions as well.
+        values = list(dict.fromkeys([*catalog[:1], *values, *catalog[1:]]))
+    return values[:limit]
 
 
-def upsert_jobs(db, jobs_data):
+def upsert_jobs(db, jobs_data, *, refresh_existing=False):
     added = 0
     for record in jobs_data:
         data = dict(record)
@@ -66,6 +87,13 @@ def upsert_jobs(db, jobs_data):
         else:
             job_id = db.query(Job.id).filter(or_(Job.source_id == data["source_id"],
                                                 Job.fingerprint == data["fingerprint"])).scalar()
+            if refresh_existing:
+                # Only the owning source may overwrite a deduplicated listing.
+                # Preserve its ID/created_at so a refresh never becomes a new-job alert.
+                db.query(Job).filter(Job.id == job_id, Job.source_id == data["source_id"]).update(
+                    {key: value for key, value in data.items() if key != "source_id"},
+                    synchronize_session=False,
+                )
         db.execute(insert(JobSource).values(source_id=data["source_id"], job_id=job_id,
                                             source=source, raw_data=raw).on_conflict_do_update(
             index_elements=["source_id"],

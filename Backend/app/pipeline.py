@@ -11,7 +11,7 @@ from app.scrapers import AVAILABLE_SCRAPERS
 from database import SessionLocal
 
 
-def scrape_source(source):
+def scrape_source(source, *, send_alerts=True):
     with pipeline_lock("scrape:" + source) as acquired:
         if not acquired:
             return {"status": "busy", "added": 0, "skipped": 0}
@@ -26,10 +26,11 @@ def scrape_source(source):
             run_id = run.id
             start = time.perf_counter()
             try:
-                records = [{**job.to_dict(), "source": source} for job in AVAILABLE_SCRAPERS[source]().run()]
+                scraper = AVAILABLE_SCRAPERS[source]()
+                records = [{**job.to_dict(), "source": source} for job in scraper.run()]
                 if not records:
                     raise ValueError("Source returned no usable jobs")
-                added = crud.upsert_jobs(db, records)
+                added = crud.upsert_jobs(db, records, refresh_existing=getattr(scraper, "refresh_existing", False))
                 run.status, run.fetched, run.added = "ok", len(records), added
                 run.skipped = len(records) - added
                 run.finished_at = datetime.now(timezone.utc)
@@ -49,6 +50,8 @@ def scrape_source(source):
             # Keep bounded history; this does not touch job or delivery records.
             db.query(ScrapeRun).filter(ScrapeRun.started_at < datetime.now(timezone.utc) - timedelta(days=30)).delete()
             db.commit()
+            if not send_alerts:
+                return result
             try:
                 result["alerts"] = run_alert_engine(db)
             except Exception as error:

@@ -59,6 +59,11 @@
     { "path": "/cron/scrape/ashby_materialsecurity", "schedule": "20 16 * * *" },
     { "path": "/cron/scrape/ashby_hackerone", "schedule": "40 16 * * *" },
     { "path": "/cron/scrape/ashby_semgrep", "schedule": "0 17 * * *" },
+    { "path": "/cron/scrape/greenhouse_careem", "schedule": "20 17 * * *" },
+    { "path": "/cron/scrape/greenhouse_joblogic", "schedule": "40 17 * * *" },
+    { "path": "/cron/scrape/lever_educative", "schedule": "0 18 * * *" },
+    { "path": "/cron/scrape/workable_devsinc-17", "schedule": "20 18 * * *" },
+    { "path": "/cron/scrape/workable_pakistan-single-window", "schedule": "40 18 * * *" },
     { "path": "/cron/alerts", "schedule": "0 20 * * *" }
   ],
   "routes": [

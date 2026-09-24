@@ -44,6 +44,11 @@ const icons: Record<string, SimpleIcon> = {
 };
 
 const localIcons: Record<string, string> = {
+  pakistansinglewindow: "pakistan-single-window.png",
+  careem: "careem.png",
+  devsinc: "devsinc.svg",
+  educative: "educative.png",
+  joblogic: "joblogic.png",
   abnormalsecurity: "abnormal.png",
   axonius: "axonius.png",
   bishopfox: "bishopfox.png",

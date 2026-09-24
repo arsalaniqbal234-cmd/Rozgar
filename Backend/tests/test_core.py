@@ -87,7 +87,7 @@ def test_vercel_cron_requires_secret_and_runs_one_source(client, monkeypatch):
 
 
 def test_greenhouse_registered_sites_normalize_only_remote_jobs():
-    assert len(AVAILABLE_SCRAPERS) == 52
+    assert len(AVAILABLE_SCRAPERS) == 57
     scraper = GreenhouseScraper("example", "Example Company")
     jobs = scraper.parse({"jobs": [
         {"id": 1, "title": "Remote Python Engineer", "absolute_url": "https://example.com/1",
@@ -190,7 +190,8 @@ def test_job_suggestions_are_distinct_and_field_specific(client, db):
     job(db, title="Python Engineer", source_id="remoteok_2", location="Lahore")
     job(db, title="Design 100% role", source_id="remoteok_3", location="Berlin")
     assert client.get("/jobs/suggestions", params={"field": "title", "q": "python"}).json() == ["Python Engineer"]
-    assert client.get("/jobs/suggestions", params={"field": "location", "q": "lah"}).json() == ["Lahore"]
+    locations = client.get("/jobs/suggestions", params={"field": "location", "q": "lah"}).json()
+    assert locations[0] == "Lahore, Pakistan" and "Lahore" in locations
     assert client.get("/jobs/suggestions", params={"field": "title", "q": "%"}).json() == ["Design 100% role"]
     assert client.get("/jobs/suggestions", params={"field": "title", "q": ""}).status_code == 422
     assert client.get("/jobs/suggestions", params={"field": "title", "q": "  "}).json() == []
