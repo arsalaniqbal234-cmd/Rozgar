@@ -12,7 +12,7 @@ describe("saved search URLs", () => {
   it("preserves explicitly selected locations and worldwide saved searches", () => {
     expect(filtersFromSearchParams(new URLSearchParams("location=Lahore")).location).toBe("Lahore");
     expect(filtersFromSearchParams(new URLSearchParams("location=")).location).toBe("");
-    const href = savedSearchHref({ id: 2, keywords: "Engineer", location: null, min_salary: null, filters: {} });
+    const href = savedSearchHref({ id: 2, keywords: "Engineer", filters: {} });
     expect(filtersFromSearchParams(new URL(href, "http://localhost").searchParams).location).toBe("");
   });
 
