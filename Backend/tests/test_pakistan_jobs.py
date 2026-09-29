@@ -94,6 +94,62 @@ def test_invalid_source_payload_is_a_failure(adapter):
         adapter("example", "Example").parse({"error": "unavailable"})
 
 
+@pytest.mark.parametrize("source,company", [
+    ("greenhouse_gomotive", "Motive"),
+    ("workable_pakistan-mobile-communication-limited-pmcl", "JazzWorld"),
+    ("workable_inbox-business-technologies", "Inbox Business Technologies"),
+    ("workable_joinbeam", "Beam AI"),
+    ("workable_thingtrax", "ThingTrax"),
+    ("workable_flatgigs", "Flatgigs"),
+    ("workable_opperate", "Opperate"),
+    ("workable_surglobal", "Sur"),
+    ("workable_virtuestaff", "VirtueStaff"),
+    ("workable_volga-partners", "Volga Partners"),
+    ("greenhouse_nysonian", "Nysonian"),
+    ("greenhouse_flipdish", "Flipdish"),
+    ("greenhouse_knowledgecity", "KnowledgeCity"),
+    ("workable_creativechaos", "Creative Chaos"),
+    ("workable_codeninjapk", "CodeNinja"),
+    ("workable_bayutdubizzle", "Bayut | dubizzle"),
+    ("workable_jeeny", "Jeeny"),
+    ("workable_remotebase", "Remotebase"),
+    ("workable_pavago", "Pavago"),
+    ("workable_autoleap", "AutoLeap"),
+])
+def test_new_sources_fetch_correct_board_and_only_import_pakistan(source, company, monkeypatch):
+    monkeypatch.setattr("app.scrapers.base.time.sleep", lambda _: None)
+    provider, token = source.split("_", 1)
+    response = Mock()
+    if provider == "greenhouse":
+        response.json.return_value = {"jobs": [
+            greenhouse_job(1, "Lahore"), greenhouse_job(2, "Dubai"),
+            greenhouse_job(3, "Worldwide"),
+        ]}
+        endpoint = f"https://boards-api.greenhouse.io/v1/boards/{token}/jobs"
+        params = {"content": "true"}
+    else:
+        response.json.return_value = {"jobs": [
+            {"shortcode": str(i), "title": "Engineer", "country": country, "city": city,
+             "url": f"https://apply.workable.com/j/{i}", "description": "Build software"}
+            for i, country, city in [(1, "Pakistan", "Lahore"), (2, "UAE", "Dubai"), (3, "", "")]
+        ]}
+        endpoint = f"https://www.workable.com/api/accounts/{token}"
+        params = {"details": "true"}
+    get = Mock(return_value=response)
+    monkeypatch.setattr("requests.get", get)
+    scraper = pipeline.AVAILABLE_SCRAPERS[source]()
+    jobs = scraper.run()
+    get.assert_called_once_with(endpoint, params=params, timeout=(5, 20),
+                                headers={"User-Agent": "Rozgar/0.8 (public job listings)"})
+    response.raise_for_status.assert_called_once()
+    assert scraper.refresh_existing is True
+    assert scraper.source_name == source
+    assert len(jobs) == 1
+    assert jobs[0].source_id == f"{source}_1"
+    assert jobs[0].company == company
+    assert jobs[0].location == "Lahore, Pakistan"
+
+
 def store(db, identifier, location, **kwargs):
     record = NormalizedJob(source_id=identifier, title="Engineer", company="Example",
                            url=f"https://example.com/{identifier}", location=location, **kwargs).to_dict()
@@ -173,4 +229,4 @@ def test_pipeline_stores_pakistan_jobs_and_import_does_not_send_alerts(client, d
     assert rows[0]["location"] == "Lahore, Pakistan"
     assert not rows[0]["is_remote"]
     alerts.assert_not_called()
-    assert len(PAKISTAN_SOURCES) == 5
+    assert len(PAKISTAN_SOURCES) == 25
