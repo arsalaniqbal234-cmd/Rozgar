@@ -1,4 +1,5 @@
-from unittest.mock import Mock
+from contextlib import nullcontext
+from unittest.mock import MagicMock, Mock
 
 import pytest
 
@@ -92,6 +93,44 @@ def test_workable_merges_repeated_shortcode_across_cities():
 def test_invalid_source_payload_is_a_failure(adapter):
     with pytest.raises(ValueError):
         adapter("example", "Example").parse({"error": "unavailable"})
+
+
+@pytest.mark.parametrize("payload,expected_status", [
+    ({"jobs": []}, "ok"),
+    ({"jobs": [greenhouse_job(1, "Dubai")]}, "ok"),
+    ({"error": "unavailable"}, "failed"),
+])
+def test_pipeline_empty_results_and_invalid_payloads(payload, expected_status, monkeypatch):
+    session = MagicMock()
+    session.__enter__.return_value = session
+    session.get.side_effect = lambda *args: session.add.call_args.args[0]
+    monkeypatch.setattr(pipeline, "SessionLocal", lambda: session)
+    monkeypatch.setattr(pipeline, "pipeline_lock", lambda _: nullcontext(True))
+    monkeypatch.setattr(PakistanGreenhouseScraper, "fetch_with_retry", lambda _: payload)
+    upsert, invalidate, report, alerts = Mock(), Mock(), Mock(), Mock()
+    monkeypatch.setattr(pipeline.crud, "upsert_jobs", upsert)
+    monkeypatch.setattr(pipeline.cache, "invalidate_jobs", invalidate)
+    monkeypatch.setattr(pipeline, "report_failure", report)
+    monkeypatch.setattr(pipeline, "run_alert_engine", alerts)
+
+    result = pipeline.scrape_source("greenhouse_careem", send_alerts=False)
+
+    run = session.add.call_args.args[0]
+    assert result["status"] == run.status == expected_status
+    assert run.finished_at is not None and run.duration_ms >= 0
+    if expected_status == "ok":
+        assert result == {"status": "ok", "added": 0, "skipped": 0}
+        assert (run.fetched, run.added, run.skipped) == (0, 0, 0)
+        assert run.error_code is None
+        report.assert_not_called()
+        session.rollback.assert_not_called()
+    else:
+        assert result["error"] == run.error_code == "ValueError"
+        report.assert_called_once()
+        session.rollback.assert_called_once()
+    upsert.assert_not_called()
+    invalidate.assert_not_called()
+    alerts.assert_not_called()
 
 
 @pytest.mark.parametrize("source,company", [

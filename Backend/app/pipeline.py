@@ -28,15 +28,16 @@ def scrape_source(source, *, send_alerts=True):
             try:
                 scraper = AVAILABLE_SCRAPERS[source]()
                 records = [{**job.to_dict(), "source": source} for job in scraper.run()]
-                if not records:
-                    raise ValueError("Source returned no usable jobs")
-                added = crud.upsert_jobs(db, records, refresh_existing=getattr(scraper, "refresh_existing", False))
+                added = 0
+                if records:
+                    added = crud.upsert_jobs(db, records, refresh_existing=getattr(scraper, "refresh_existing", False))
                 run.status, run.fetched, run.added = "ok", len(records), added
                 run.skipped = len(records) - added
                 run.finished_at = datetime.now(timezone.utc)
                 run.duration_ms = (time.perf_counter() - start) * 1000
                 db.commit()
-                cache.invalidate_jobs()
+                if records:
+                    cache.invalidate_jobs()
                 result = {"status": "ok", "added": added, "skipped": run.skipped}
             except Exception as error:
                 db.rollback()
